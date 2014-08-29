@@ -18,7 +18,7 @@ Then add something like this to your `build.sbt`
 herokuAppName in Compile := "your-heroku-app-name"
 ```
 
-Now, if you have the toolbelt installed, run:
+Now, if you have the [Heroku Toolbelt](https://toolbelt.heroku.com/) installed, run:
 
 ```
 $ sbt stage deployHeroku
@@ -27,7 +27,7 @@ $ sbt stage deployHeroku
 If you do not have the toolbelt installed, then run:
 
 ```
-$ HEROKU_API_KEY=xxx-xxx-xxxx" sbt stage deployHeroku
+$ HEROKU_API_KEY="xxx-xxx-xxxx" sbt stage deployHeroku
 ```
 
 ### Configuring the Plugin
