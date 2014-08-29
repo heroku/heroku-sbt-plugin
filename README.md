@@ -30,6 +30,8 @@ If you do not have the toolbelt installed, then run:
 $ HEROKU_API_KEY="xxx-xxx-xxxx" sbt stage deployHeroku
 ```
 
+It is required that you use sbt 0.13.5 or greater.
+
 ### Configuring the Plugin
 
 You may set the desired JDK version like so:
@@ -40,3 +42,10 @@ herokuJdkVersion in Compile := "1.7"
 
 Valid values are `1.6`, `1.7`, and `1.8`. The default is `1.7`
 
+## Hacking
+
+In order to run the test suite, you must have the [Heroku Toolbelt](https://toolbelt.heroku.com/) installed. Then run:
+
+```
+$ sbt scripted
+```
