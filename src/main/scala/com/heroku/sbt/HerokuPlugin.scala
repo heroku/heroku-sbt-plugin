@@ -74,11 +74,6 @@ object Deploy {
     val jdkTgz = herokuDir / "jdk-pkg.tar.gz"
     sbt.IO.download(new java.net.URL(jdkUrl), jdkTgz)
 
-    //val jdkTar = herokuDir / "jdk-pkg.tar"
-    //IO.gunzip(jdkTgz, jdkTar)
-    //Unpack(jdkTar, jdkHome)
-    // delete jdkTar
-
     sbt.Process("tar", Seq("pxf", jdkTgz.getAbsolutePath, "-C", jdkHome.getAbsolutePath)) !!
 
     sbt.Process(Seq("tar", "pczf", "slug.tgz", "./app"), herokuDir) !!
@@ -191,51 +186,6 @@ object Curl {
     }
     output
   }
-}
-
-object Unpack {
-
-  def apply(tarFile: File, outputDir: File): Unit = {
-
-    def uncompress(input: BufferedInputStream): InputStream =
-      Try(new CompressorStreamFactory().createCompressorInputStream(input)) match {
-        case Success(i) => new BufferedInputStream(i)
-        case Failure(_) => input
-      }
-
-    def extract(input: InputStream): ArchiveInputStream =
-      new ArchiveStreamFactory().createArchiveInputStream(input)
-
-
-    val input = extract(uncompress(new BufferedInputStream(new FileInputStream(tarFile))))
-    def stream: Stream[ArchiveEntry] = input.getNextEntry match {
-      case null => Stream.empty
-      case entry => entry #:: stream
-    }
-
-    for (entry <- stream) {
-      if (entry.isDirectory) {
-        sbt.IO.createDirectory(outputDir / entry.getName)
-      } else {
-        println(s"${entry.getName} - ${entry.getSize} bytes")
-        val destPath = outputDir / entry.getName
-        destPath.createNewFile
-
-        val btoRead = Array.ofDim[Byte](1024)
-        val bout = new BufferedOutputStream(new FileOutputStream(destPath))
-        var len = input.read(btoRead);
-
-        while (len != -1) {
-          bout.write(btoRead, 0, len);
-          len = input.read(btoRead)
-        }
-
-        bout.close()
-      }
-    }
-
-  }
-
 }
 
 
