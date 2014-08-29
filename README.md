@@ -30,7 +30,11 @@ If you do not have the toolbelt installed, then run:
 $ HEROKU_API_KEY="xxx-xxx-xxxx" sbt stage deployHeroku
 ```
 
+### Requirements
+
 It is required that you use sbt 0.13.5 or greater.
+
+You must have a `tar` command available on your system.
 
 ### Configuring the Plugin
 
