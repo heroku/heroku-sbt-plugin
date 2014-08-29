@@ -9,8 +9,15 @@ This is can be useful when deploying from a CI server.
 Add the following to your `project/plugins.sbt` file:
 
 ```
+resolvers += Resolver.url(
+  "bintray-sbt-plugin-releases",
+   url("http://dl.bintray.com/content/sbt/sbt-plugin-releases"))(
+       Resolver.ivyStylePatterns)
+
 addSbtPlugin("com.heroku" % "sbt-heroku" % "0.1-SNAPSHOT")
 ```
+
+If you're not using Play, then you'll also need to you'll also need to add the [sbt-native-packager plugin](https://github.com/sbt/sbt-native-packager)
 
 Then add something like this to your `build.sbt`
 
@@ -32,9 +39,11 @@ $ HEROKU_API_KEY="xxx-xxx-xxxx" sbt stage deployHeroku
 
 ### Requirements
 
-It is required that you use sbt 0.13.5 or greater.
++  It is required that you use sbt 0.13.5 or greater.
 
-You must have a `tar` command available on your system.
++  You must have a `tar` command available on your system.
+
++  This plugin has not been tested with Play 2.0 or 2.1.
 
 ### Configuring the Plugin
 
