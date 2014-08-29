@@ -34,8 +34,8 @@ object HerokuPlugin extends AutoPlugin {
       deployHeroku := {
         Deploy(target.value, (herokuJdkVersion in deployHeroku).value, (herokuAppName in deployHeroku).value)
       },
-      herokuJdkVersion in deployHeroku := "1.7",
-      herokuAppName in deployHeroku := ""
+      herokuJdkVersion in Compile := "1.7",
+      herokuAppName in Compile := ""
     )
   }
 
@@ -51,19 +51,22 @@ object HerokuPlugin extends AutoPlugin {
 
 object Deploy {
   def apply(targetDir: java.io.File, jdkVersion: String, appName: String): String = {
+    if (appName.isEmpty) throw new IllegalArgumentException("herokuAppName must be defined")
+
+    val jdkUrl = Map[String, String](
+      "1.6" -> "http://heroku-jdk.s3.amazonaws.com/openjdk1.7.0_45.tar.gz",
+      "1.7" -> "http://heroku-jdk.s3.amazonaws.com/openjdk1.7.0_45.tar.gz",
+      "1.8" -> "http://heroku-jdk.s3.amazonaws.com/openjdk1.7.0_45.tar.gz"
+    )(jdkVersion)
+
+    if (jdkUrl == null) throw new IllegalArgumentException("'" + jdkVersion + "' is not a valid JDK version")
+
     println("---> Packaging application...")
     val herokuDir = targetDir / "heroku"
     val appDir = herokuDir / "app"
 
     // move because copy won't keep file permissions. we'll put it back later
     sbt.IO.move((targetDir / "universal"), appDir)
-
-    val jdkUrl = Map[String, String](
-      "1.6" -> "http://heroku-jdk.s3.amazonaws.com/openjdk1.7.0_45.tar.gz",
-      "1.7" -> "http://heroku-jdk.s3.amazonaws.com/openjdk1.7.0_45.tar.gz",
-      "" -> "http://heroku-jdk.s3.amazonaws.com/openjdk1.7.0_45.tar.gz",
-      "1.8" -> "http://heroku-jdk.s3.amazonaws.com/openjdk1.7.0_45.tar.gz"
-    )(jdkVersion)
 
     val jdkHome = appDir / ".jdk"
     sbt.IO.createDirectory(jdkHome)
