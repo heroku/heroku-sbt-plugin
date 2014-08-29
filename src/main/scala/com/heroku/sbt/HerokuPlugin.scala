@@ -137,11 +137,11 @@ object UploadSlug {
     val in = new BufferedInputStream(new FileInputStream(slug))
 
     val buffer = Array.ofDim[Byte](1024)
-    var x = in.read(buffer)
-    while (x != -1) {
-      out.write(buffer, 0, x)
+    var length = in.read(buffer)
+    while (length != -1) {
+      out.write(buffer, 0, length)
       out.flush()
-      x = in.read(buffer)
+      length = in.read(buffer)
     }
     out.close()
     in.close()
@@ -224,7 +224,7 @@ object Unpack {
           len = input.read(btoRead)
         }
 
-        bout.close
+        bout.close()
       }
     }
 
