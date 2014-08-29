@@ -86,9 +86,15 @@ object Deploy {
     val apiKey = System.getenv("HEROKU_API_KEY")
     val encodedApiKey = new BASE64Encoder().encode((":" + apiKey).getBytes)
 
+    val startScript = (appDir / "stage" / "bin" ** "*").
+      filter(!_.getName.endsWith(".bat")).
+      filter(!_.getName.equals("bin")).
+      get(0)
+
+    val slugData = "{\"process_types\":{\"web\":\"stage/bin/" + startScript.getName + "\"}}"
+
     println("---> Creating Slug...")
-    val slugResponse = CreateSlug(appName, encodedApiKey,
-      "{\"process_types\":{\"web\":\"stage/bin/scala-getting-started\"}}")
+    val slugResponse = CreateSlug(appName, encodedApiKey, slugData)
 
     val slugJson = slugResponse.parseJson.asJsObject
     var blobUrl = slugJson.getFields("blob")(0).asJsObject.getFields("url")(0).toString
