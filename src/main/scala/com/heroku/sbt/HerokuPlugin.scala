@@ -68,7 +68,7 @@ object Deploy {
         filter(!_.getName.equals("bin")).
         get(0)
 
-      slugData = "{\"process_types\":{\"web\":\"target/universal/stage/bin/" + startScript.getName + "\"}}"
+      slugData = "{\"process_types\":{\"web\":\"target/universal/stage/bin/" + startScript.getName + " -Dhttp.port=$PORT\"}}"
     } else if ((targetDir / "start").exists) {
       if ((targetDir / "staged").exists) {
         // move because copy won't keep file permissions. we'll put it back later
@@ -77,7 +77,7 @@ object Deploy {
 
         installJdk(herokuDir, appDir, jdkUrl)
 
-        slugData = "{\"process_types\":{\"web\":\"target/start\"}}"
+        slugData = "{\"process_types\":{\"web\":\"target/start -Dhttp.port=$PORT $JAVA_OPTS\"}}"
       } else {
         log.error("Your application is not staged correctly. " +
           "If you are using sbt-start-script, you must switch to sbt-native-packager")
@@ -91,6 +91,11 @@ object Deploy {
     sbt.Process(Seq("tar", "pczf", "slug.tgz", "./app"), herokuDir) !!
 
     println("---> Creating Slug...")
+    SetConfigVars(appName, encodedApiKey, Map(
+      "PATH" -> ".jdk/bin:/usr/local/bin:/usr/bin:/bin",
+      "JAVA_OPTS" -> "-Xmx384m -Xss512k -XX:+UseCompressedOops",
+      "SBT_OPTS" -> "-Xmx384m -Xss512k -XX:+UseCompressedOops"
+    ))
     val slugResponse = CreateSlug(appName, encodedApiKey, slugData)
 
     val slugJson = slugResponse.parseJson.asJsObject
@@ -140,6 +145,22 @@ object CreateSlug {
       "Accept" -> "application/vnd.heroku+json; version=3")
 
     Curl(urlStr, "POST", data, headers)
+  }
+}
+
+object SetConfigVars {
+  def apply(appName: String, encodedApiKey: String, config: Map[String,String]): String = {
+    val urlStr = "https://api.heroku.com/apps/" + URLEncoder.encode(appName, "UTF-8") + "/config_vars"
+
+    val data = "{" + config.map{case(k,v) => "\""+k+"\":\""+v+"\""}.mkString(",") + "}"
+
+    println("data: " + data)
+
+    val headers = Map(
+      "Authorization" -> encodedApiKey,
+      "Content-Type" -> "application/json")
+
+    Curl(urlStr, "PUT", data, headers)
   }
 }
 
