@@ -23,6 +23,7 @@ import javax.net.ssl.HttpsURLConnection
 import sun.misc.BASE64Encoder
 
 object HerokuPlugin extends AutoPlugin {
+
   object autoImport {
 
     val deployHeroku = taskKey[String]("Deploy to Heroku.")
@@ -34,12 +35,14 @@ object HerokuPlugin extends AutoPlugin {
         Deploy(target.value, (herokuJdkVersion in deployHeroku).value, (herokuAppName in deployHeroku).value)
       },
       herokuJdkVersion in deployHeroku := "1.7",
-      herokuAppName in deployHeroku := "sheltered-citadel-3631"
+      herokuAppName in deployHeroku := ""
     )
   }
 
   import autoImport._
+
   override def requires = sbt.plugins.JvmPlugin
+
   override def trigger = allRequirements
 
   override val projectSettings =
@@ -47,55 +50,60 @@ object HerokuPlugin extends AutoPlugin {
 }
 
 object Deploy {
-    def apply(targetDir: java.io.File, jdkVersion: String, appName: String): String = {
-      println("---> Packaging application...")
-      val herokuDir = targetDir / "heroku"
-      val appDir = herokuDir / "app"
+  def apply(targetDir: java.io.File, jdkVersion: String, appName: String): String = {
+    println("---> Packaging application...")
+    val herokuDir = targetDir / "heroku"
+    val appDir = herokuDir / "app"
 
-      // move because copy won't keep file permissions. we'll put it back later
-      sbt.IO.move((targetDir / "universal"), appDir)
+    // move because copy won't keep file permissions. we'll put it back later
+    sbt.IO.move((targetDir / "universal"), appDir)
 
-      val jdkUrl = "http://heroku-jdk.s3.amazonaws.com/openjdk1.7.0_45.tar.gz"
+    val jdkUrl = Map[String, String](
+      "1.6" -> "http://heroku-jdk.s3.amazonaws.com/openjdk1.7.0_45.tar.gz",
+      "1.7" -> "http://heroku-jdk.s3.amazonaws.com/openjdk1.7.0_45.tar.gz",
+      "" -> "http://heroku-jdk.s3.amazonaws.com/openjdk1.7.0_45.tar.gz",
+      "1.8" -> "http://heroku-jdk.s3.amazonaws.com/openjdk1.7.0_45.tar.gz"
+    )(jdkVersion)
 
-      val jdkHome = appDir / ".jdk"
-      sbt.IO.createDirectory(jdkHome)
+    val jdkHome = appDir / ".jdk"
+    sbt.IO.createDirectory(jdkHome)
 
-      val jdkTgz = herokuDir / "jdk-pkg.tar.gz"
-      sbt.IO.download(new java.net.URL(jdkUrl) , jdkTgz)
+    val jdkTgz = herokuDir / "jdk-pkg.tar.gz"
+    sbt.IO.download(new java.net.URL(jdkUrl), jdkTgz)
 
-      //val jdkTar = herokuDir / "jdk-pkg.tar"
-      //IO.gunzip(jdkTgz, jdkTar)
-      //Unpack(jdkTar, jdkHome)
-      // delete jdkTar
+    //val jdkTar = herokuDir / "jdk-pkg.tar"
+    //IO.gunzip(jdkTgz, jdkTar)
+    //Unpack(jdkTar, jdkHome)
+    // delete jdkTar
 
-      sbt.Process("tar", Seq("pxf", jdkTgz.getAbsolutePath, "-C", jdkHome.getAbsolutePath))!!
+    sbt.Process("tar", Seq("pxf", jdkTgz.getAbsolutePath, "-C", jdkHome.getAbsolutePath)) !!
 
-      sbt.Process(Seq("tar", "pczf", "slug.tgz", "./app"), herokuDir)!!
+    sbt.Process(Seq("tar", "pczf", "slug.tgz", "./app"), herokuDir) !!
 
-      val apiKey = System.getenv("HEROKU_API_KEY")
-      val encodedApiKey = new BASE64Encoder().encode((":" + apiKey).getBytes)
+    val apiKey = System.getenv("HEROKU_API_KEY")
+    val encodedApiKey = new BASE64Encoder().encode((":" + apiKey).getBytes)
 
-      println("---> Creating Slug...")
-      val slugResponse = CreateSlug(appName, encodedApiKey,
-       "{\"process_types\":{\"web\":\"stage/bin/scala-getting-started\"}}")
+    println("---> Creating Slug...")
+    val slugResponse = CreateSlug(appName, encodedApiKey,
+      "{\"process_types\":{\"web\":\"stage/bin/scala-getting-started\"}}")
 
-      val slugJson = slugResponse.parseJson.asJsObject
-      var blobUrl = slugJson.getFields("blob")(0).asJsObject.getFields("url")(0).toString
-      var slugId = slugJson.getFields("id")(0).toString
-      blobUrl = blobUrl.substring(1,blobUrl.size-1)
-      slugId = slugId.substring(1, slugId.size-1)
+    val slugJson = slugResponse.parseJson.asJsObject
+    var blobUrl = slugJson.getFields("blob")(0).asJsObject.getFields("url")(0).toString
+    var slugId = slugJson.getFields("id")(0).toString
+    blobUrl = blobUrl.substring(1, blobUrl.size - 1)
+    slugId = slugId.substring(1, slugId.size - 1)
 
-      println("---> Uploading Slug...")
-      UploadSlug(blobUrl, herokuDir / "slug.tgz")
+    println("---> Uploading Slug...")
+    UploadSlug(blobUrl, herokuDir / "slug.tgz")
 
-      println("---> Releasing the Slug...")
-      val releaseResponse = ReleaseSlug(appName, encodedApiKey, slugId)
-      println(releaseResponse.parseJson.asJsObject.prettyPrint)
+    println("---> Releasing the Slug...")
+    val releaseResponse = ReleaseSlug(appName, encodedApiKey, slugId)
+    println(releaseResponse.parseJson.asJsObject.prettyPrint)
 
-      // clean up
-      sbt.IO.move(appDir / "stage", targetDir / "universal" / "stage")
-      "success"
-    }
+    // clean up
+    sbt.IO.move(appDir / "stage", targetDir / "universal" / "stage")
+    "success"
+  }
 }
 
 object CreateSlug {
@@ -104,8 +112,8 @@ object CreateSlug {
 
     val headers = Map(
       "Authorization" -> encodedApiKey,
-      "Content-Type"  -> "application/json",
-      "Accept"        -> "application/vnd.heroku+json; version=3")
+      "Content-Type" -> "application/json",
+      "Accept" -> "application/vnd.heroku+json; version=3")
 
     Curl(urlStr, "POST", data, headers)
   }
@@ -144,10 +152,10 @@ object ReleaseSlug {
 
     val headers = Map(
       "Authorization" -> encodedApiKey,
-      "Content-Type"  -> "application/json",
-      "Accept"        -> "application/vnd.heroku+json; version=3")
+      "Content-Type" -> "application/json",
+      "Accept" -> "application/vnd.heroku+json; version=3")
 
-    val data = "{\"slug\":\""  + slugId +  "\"}"
+    val data = "{\"slug\":\"" + slugId + "\"}"
 
     Curl(urlStr, "POST", data, headers)
   }
@@ -161,7 +169,7 @@ object Curl {
     con.setDoOutput(true)
     con.setRequestMethod(method)
 
-    headers.foreach{ case (key, value) => con.setRequestProperty(key, value) }
+    headers.foreach { case (key, value) => con.setRequestProperty(key, value)}
 
     con.getOutputStream.write(data.getBytes("UTF-8"))
 
@@ -169,14 +177,16 @@ object Curl {
 
     var output = ""
     var tmp = reader.readLine
-    while(tmp != null) { output += tmp; tmp = reader.readLine }
+    while (tmp != null) {
+      output += tmp; tmp = reader.readLine
+    }
     output
   }
 }
 
 object Unpack {
 
-  def apply(tarFile: File, outputDir: File): Unit =  {
+  def apply(tarFile: File, outputDir: File): Unit = {
 
     def uncompress(input: BufferedInputStream): InputStream =
       Try(new CompressorStreamFactory().createCompressorInputStream(input)) match {
@@ -190,11 +200,11 @@ object Unpack {
 
     val input = extract(uncompress(new BufferedInputStream(new FileInputStream(tarFile))))
     def stream: Stream[ArchiveEntry] = input.getNextEntry match {
-      case null  => Stream.empty
+      case null => Stream.empty
       case entry => entry #:: stream
     }
 
-    for(entry <- stream) {
+    for (entry <- stream) {
       if (entry.isDirectory) {
         sbt.IO.createDirectory(outputDir / entry.getName)
       } else {
@@ -206,10 +216,9 @@ object Unpack {
         val bout = new BufferedOutputStream(new FileOutputStream(destPath))
         var len = input.read(btoRead);
 
-        while(len != -1)
-        {
-            bout.write(btoRead,0,len);
-            len = input.read(btoRead)
+        while (len != -1) {
+          bout.write(btoRead, 0, len);
+          len = input.read(btoRead)
         }
 
         bout.close
