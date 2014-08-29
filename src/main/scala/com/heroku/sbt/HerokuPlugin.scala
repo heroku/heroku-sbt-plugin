@@ -77,7 +77,7 @@ object Deploy {
 
       println("---> Creating Slug...")
       val slugResponse = CreateSlug(appName, encodedApiKey,
-        """{"process_types":{"web":"stage/bin/scala-getting-started"}}""")
+       "{\"process_types\":{\"web\":\"stage/bin/scala-getting-started\"}}")
 
       val slugJson = slugResponse.parseJson.asJsObject
       var blobUrl = slugJson.getFields("blob")(0).asJsObject.getFields("url")(0).toString
@@ -93,7 +93,7 @@ object Deploy {
       println(releaseResponse.parseJson.asJsObject.prettyPrint)
 
       // clean up
-      sbt.IO.move((appDir / "stage"), targetDir / "universal" / "stage")
+      sbt.IO.move(appDir / "stage", targetDir / "universal" / "stage")
       "success"
     }
 }
@@ -121,19 +121,20 @@ object UploadSlug {
     connection.setConnectTimeout(0)
     connection.setRequestProperty("Content-Type", "")
 
-    connection.connect
-    val out = new OutputStreamWriter(connection.getOutputStream)
-    val in = new BufferedReader(new InputStreamReader(new FileInputStream(slug)))
+    connection.connect()
+    val out = connection.getOutputStream
+    val in = new BufferedInputStream(new FileInputStream(slug))
 
-    var x = in.readLine
-    while (x != null) {
-      out.write(x)
-      out.flush
-      x = in.readLine
+    val buffer = Array.ofDim[Byte](1024)
+    var x = in.read(buffer)
+    while (x != -1) {
+      out.write(buffer, 0, x)
+      out.flush()
+      x = in.read(buffer)
     }
-    out.close
-    in.close
-    connection.getResponseCode()
+    out.close()
+    in.close()
+    connection.getResponseCode
   }
 }
 
