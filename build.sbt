@@ -1,12 +1,12 @@
+import bintray.Keys._
+
 sbtPlugin := true
 
 name := "sbt-heroku"
 
 organization := "com.heroku"
 
-version := "0.1-SNAPSHOT"
-
-scalaVersion := "2.10.4"
+scalaVersion in Global := "2.10.4"
 
 libraryDependencies ++= Seq(
   "io.spray" %% "spray-json" % "1.2.6"
@@ -21,8 +21,12 @@ scriptedLaunchOpts := { scriptedLaunchOpts.value ++
     "-Dheroku.uuid=" + java.util.UUID.randomUUID.toString.substring(0,15))
 }
 
-Release.settings
+publishMavenStyle := false
 
-publishArtifact in (Compile, packageDoc) := false
+bintraySettings
 
-publishArtifact in (Compile, packageSrc) := false
+repository in bintray := "sbt-plugins"
+
+licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
+
+bintrayOrganization in bintray := Some("heroku")
