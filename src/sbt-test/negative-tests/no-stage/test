@@ -1,0 +1,3 @@
+# Stage the distribution and ensure it can be deployed.
+-$ exists target/universal/stage/bin/scala-getting-started
+-> show deployHeroku

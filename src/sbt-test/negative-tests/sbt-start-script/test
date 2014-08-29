@@ -1,0 +1,5 @@
+# Stage the distribution and ensure it cannot be deployed.
+> show stage
+$ exists target/start
+-$ exists target/staged
+-> show deployHeroku

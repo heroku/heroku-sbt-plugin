@@ -19,7 +19,7 @@ object HerokuPlugin extends AutoPlugin {
 
     lazy val baseHerokuSettings: Seq[Def.Setting[_]] = Seq(
       deployHeroku := {
-        Deploy(target.value, (herokuJdkVersion in deployHeroku).value, (herokuAppName in deployHeroku).value)
+        Deploy(target.value, (herokuJdkVersion in deployHeroku).value, (herokuAppName in deployHeroku).value, streams.value.log)
       },
       herokuJdkVersion in Compile := "1.7",
       herokuAppName in Compile := ""
@@ -37,13 +37,14 @@ object HerokuPlugin extends AutoPlugin {
 }
 
 object Deploy {
-  def apply(targetDir: java.io.File, jdkVersion: String, appName: String): String = {
+  def apply(targetDir: java.io.File, jdkVersion: String, appName: String, log: Logger): String = {
     if (appName.isEmpty) throw new IllegalArgumentException("herokuAppName must be defined")
 
+    // TODO externalize these URLs
     val jdkUrl = Map[String, String](
-      "1.6" -> "http://heroku-jdk.s3.amazonaws.com/openjdk1.7.0_45.tar.gz",
+      "1.6" -> "http://heroku-jdk.s3.amazonaws.com/openjdk1.6.0_27.tar.gz",
       "1.7" -> "http://heroku-jdk.s3.amazonaws.com/openjdk1.7.0_45.tar.gz",
-      "1.8" -> "http://heroku-jdk.s3.amazonaws.com/openjdk1.7.0_45.tar.gz"
+      "1.8" -> "http://heroku-jdk.s3.amazonaws.com/openjdk1.8.0_b107.tar.gz"
     )(jdkVersion)
 
     if (jdkUrl == null) throw new IllegalArgumentException("'" + jdkVersion + "' is not a valid JDK version")
@@ -51,29 +52,43 @@ object Deploy {
     println("---> Packaging application...")
     val herokuDir = targetDir / "heroku"
     val appDir = herokuDir / "app"
+    val appTargetDir = appDir / "target"
 
-    // move because copy won't keep file permissions. we'll put it back later
-    sbt.IO.move((targetDir / "universal"), appDir)
+    val encodedApiKey = getApiKey
 
-    val jdkHome = appDir / ".jdk"
-    sbt.IO.createDirectory(jdkHome)
+    var slugData = ""
+    if ((targetDir / "universal").exists) {
+      // move because copy won't keep file permissions. we'll put it back later
+      sbt.IO.move(targetDir / "universal", appTargetDir / "universal")
 
-    val jdkTgz = herokuDir / "jdk-pkg.tar.gz"
-    sbt.IO.download(new java.net.URL(jdkUrl), jdkTgz)
+      installJdk(herokuDir, appDir, jdkUrl)
 
-    sbt.Process("tar", Seq("pxf", jdkTgz.getAbsolutePath, "-C", jdkHome.getAbsolutePath)) !!
+      val startScript = (appTargetDir / "universal" / "stage" / "bin" ** "*").
+        filter(!_.getName.endsWith(".bat")).
+        filter(!_.getName.equals("bin")).
+        get(0)
+
+      slugData = "{\"process_types\":{\"web\":\"target/universal/stage/bin/" + startScript.getName + "\"}}"
+    } else if ((targetDir / "start").exists) {
+      if ((targetDir / "staged").exists) {
+        // move because copy won't keep file permissions. we'll put it back later
+        sbt.IO.move(targetDir / "start", appTargetDir / "start")
+        sbt.IO.move(targetDir / "staged", appTargetDir / "staged")
+
+        installJdk(herokuDir, appDir, jdkUrl)
+
+        slugData = "{\"process_types\":{\"web\":\"target/start\"}}"
+      } else {
+        log.error("Your application is not staged correctly. " +
+          "If you are using sbt-start-script, you must switch to sbt-native-packager")
+        throw new IllegalArgumentException()
+      }
+    } else {
+      log.error("You must stage your application before deploying it!")
+      throw new IllegalArgumentException()
+    }
 
     sbt.Process(Seq("tar", "pczf", "slug.tgz", "./app"), herokuDir) !!
-
-    val apiKey = System.getenv("HEROKU_API_KEY")
-    val encodedApiKey = new BASE64Encoder().encode((":" + apiKey).getBytes)
-
-    val startScript = (appDir / "stage" / "bin" ** "*").
-      filter(!_.getName.endsWith(".bat")).
-      filter(!_.getName.equals("bin")).
-      get(0)
-
-    val slugData = "{\"process_types\":{\"web\":\"stage/bin/" + startScript.getName + "\"}}"
 
     println("---> Creating Slug...")
     val slugResponse = CreateSlug(appName, encodedApiKey, slugData)
@@ -92,8 +107,26 @@ object Deploy {
     println(releaseResponse.parseJson.asJsObject.prettyPrint)
 
     // clean up
-    sbt.IO.move(appDir / "stage", targetDir / "universal" / "stage")
+    //sbt.IO.move(appDir / "stage", targetDir / "universal" / "stage")
     "success"
+  }
+
+  def getApiKey: String = {
+    var apiKey = System.getenv("HEROKU_API_KEY")
+    if (null == apiKey || apiKey.equals("")) {
+      apiKey = sbt.Process("heroku", Seq("auth:token")) !!
+    }
+    new BASE64Encoder().encode((":" + apiKey).getBytes)
+  }
+
+  def installJdk(herokuDir: File, appDir: File, jdkUrl: String): Unit = {
+    val jdkHome = appDir / ".jdk"
+    sbt.IO.createDirectory(jdkHome)
+
+    val jdkTgz = herokuDir / "jdk-pkg.tar.gz"
+    sbt.IO.download(new java.net.URL(jdkUrl), jdkTgz)
+
+    sbt.Process("tar", Seq("pxf", jdkTgz.getAbsolutePath, "-C", jdkHome.getAbsolutePath)) !!
   }
 }
 
@@ -164,16 +197,15 @@ object Curl {
 
     con.getOutputStream.write(data.getBytes("UTF-8"))
 
+    println("response code: " + con.getResponseCode)
     val reader = new BufferedReader(new InputStreamReader(con.getInputStream))
 
     var output = ""
     var tmp = reader.readLine
     while (tmp != null) {
-      output += tmp;
+      output += tmp
       tmp = reader.readLine
     }
     output
   }
 }
-
-
