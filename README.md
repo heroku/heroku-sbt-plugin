@@ -17,9 +17,10 @@ resolvers += Resolver.url(
 addSbtPlugin("com.heroku" % "sbt-heroku" % "0.1-SNAPSHOT")
 ```
 
-If you're not using Play, then you'll also need to you'll also need to add the [sbt-native-packager plugin](https://github.com/sbt/sbt-native-packager)
+If you're not using Play, then you'll also need to you'll also need to add the
+[sbt-native-packager plugin](https://github.com/sbt/sbt-native-packager).
 
-Then add something like this to your `build.sbt`
+Next, add something like this to your `build.sbt`
 
 ```
 herokuAppName in Compile := "your-heroku-app-name"
@@ -36,6 +37,8 @@ If you do not have the toolbelt installed, then run:
 ```
 $ HEROKU_API_KEY="xxx-xxx-xxxx" sbt stage deployHeroku
 ```
+
+And replace "xxx-xxx-xxxx" with the value of your Heroku API token.
 
 ### Requirements
 
