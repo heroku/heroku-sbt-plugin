@@ -1,25 +1,12 @@
 package com.heroku.sbt
 
-import sbt._
-import Keys._
-
-import org.apache.commons.compress.archivers.ArchiveStreamFactory
-import org.apache.commons.compress.archivers.ArchiveInputStream
-import org.apache.commons.compress.archivers.ArchiveEntry
-import org.apache.commons.compress.compressors.CompressorStreamFactory
-import scala.util.Try
-import scala.util.Success
-import scala.util.Failure
-
-import spray.json._
-import DefaultJsonProtocol._
-
 import java.io._
-import java.net.URLEncoder
-import java.net.URL
-
+import java.net.{URL, URLEncoder}
 import javax.net.ssl.HttpsURLConnection
 
+import sbt.Keys._
+import sbt._
+import spray.json._
 import sun.misc.BASE64Encoder
 
 object HerokuPlugin extends AutoPlugin {
@@ -39,7 +26,7 @@ object HerokuPlugin extends AutoPlugin {
     )
   }
 
-  import autoImport._
+  import com.heroku.sbt.HerokuPlugin.autoImport._
 
   override def requires = sbt.plugins.JvmPlugin
 
@@ -182,7 +169,8 @@ object Curl {
     var output = ""
     var tmp = reader.readLine
     while (tmp != null) {
-      output += tmp; tmp = reader.readLine
+      output += tmp;
+      tmp = reader.readLine
     }
     output
   }
