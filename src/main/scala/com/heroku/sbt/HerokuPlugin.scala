@@ -6,14 +6,13 @@ import javax.net.ssl.HttpsURLConnection
 
 import sbt.Keys._
 import sbt._
-import spray.json._
 import sun.misc.BASE64Encoder
 
 object HerokuPlugin extends AutoPlugin {
 
   object autoImport {
 
-    val deployHeroku = taskKey[String]("Deploy to Heroku.")
+    val deployHeroku = taskKey[Unit]("Deploy to Heroku.")
     val herokuJdkVersion = settingKey[String]("Set the major version of the JDK to use.")
     val herokuAppName = settingKey[String]("Set the name of the Heroku application.")
 
@@ -37,7 +36,7 @@ object HerokuPlugin extends AutoPlugin {
 }
 
 object Deploy {
-  def apply(targetDir: java.io.File, jdkVersion: String, appName: String, log: Logger): String = {
+  def apply(targetDir: java.io.File, jdkVersion: String, appName: String, log: Logger): Unit = {
     if (appName.isEmpty) throw new IllegalArgumentException("herokuAppName must be defined")
 
     // TODO externalize these URLs
@@ -49,7 +48,7 @@ object Deploy {
 
     if (jdkUrl == null) throw new IllegalArgumentException("'" + jdkVersion + "' is not a valid JDK version")
 
-    println("---> Packaging application...")
+    log.info("---> Packaging application...")
     val herokuDir = targetDir / "heroku"
     val appDir = herokuDir / "app"
     val appTargetDir = appDir / "target"
@@ -65,7 +64,7 @@ object Deploy {
 
       val startScript = (appTargetDir / "universal" / "stage" / "bin" ** "*").
         filter(!_.getName.endsWith(".bat")).
-        filter(!_.getName.equals("bin")).
+        filter(!_.getName.eq("bin")).
         get(0)
 
       slugData = "{\"process_types\":{\"web\":\"target/universal/stage/bin/" + startScript.getName + " -Dhttp.port=$PORT\"}}"
@@ -88,9 +87,9 @@ object Deploy {
       throw new IllegalArgumentException()
     }
 
-    sbt.Process(Seq("tar", "pczf", "slug.tgz", "./app"), herokuDir) !!
+    sbt.Process(Seq("tar", "pczf", "slug.tgz", "./app"), herokuDir).!!
 
-    println("---> Creating Slug...")
+    log.info("---> Creating Slug...")
     SetConfigVars(appName, encodedApiKey, Map(
       "PATH" -> ".jdk/bin:/usr/local/bin:/usr/bin:/bin",
       "JAVA_OPTS" -> "-Xmx384m -Xss512k -XX:+UseCompressedOops",
@@ -98,28 +97,26 @@ object Deploy {
     ))
     val slugResponse = CreateSlug(appName, encodedApiKey, slugData)
 
-    val slugJson = slugResponse.parseJson.asJsObject
-    var blobUrl = slugJson.getFields("blob")(0).asJsObject.getFields("url")(0).toString
-    var slugId = slugJson.getFields("id")(0).toString
-    blobUrl = blobUrl.substring(1, blobUrl.size - 1)
-    slugId = slugId.substring(1, slugId.size - 1)
+    log.debug("Heroku Slug response: " + slugResponse)
 
-    println("---> Uploading Slug...")
+    val blobUrl = parseSlugResponseForBlobUrl(slugResponse)
+    val slugId = parseSlugResponseForSlugId(slugResponse)
+
+    log.debug("Heroku Blob URL: " + blobUrl)
+    log.debug("Heroku Slug Id: " + slugId)
+
+    log.info("---> Uploading Slug...")
     UploadSlug(blobUrl, herokuDir / "slug.tgz")
 
-    println("---> Releasing the Slug...")
+    log.info("---> Releasing the Slug...")
     val releaseResponse = ReleaseSlug(appName, encodedApiKey, slugId)
-    println(releaseResponse.parseJson.asJsObject.prettyPrint)
-
-    // clean up
-    //sbt.IO.move(appDir / "stage", targetDir / "universal" / "stage")
-    "success"
+    log.debug("Heroku Release response: " + releaseResponse)
   }
 
   def getApiKey: String = {
     var apiKey = System.getenv("HEROKU_API_KEY")
     if (null == apiKey || apiKey.equals("")) {
-      apiKey = sbt.Process("heroku", Seq("auth:token")) !!
+      apiKey = sbt.Process("heroku", Seq("auth:token")).!!
     }
     new BASE64Encoder().encode((":" + apiKey).getBytes)
   }
@@ -131,7 +128,19 @@ object Deploy {
     val jdkTgz = herokuDir / "jdk-pkg.tar.gz"
     sbt.IO.download(new java.net.URL(jdkUrl), jdkTgz)
 
-    sbt.Process("tar", Seq("pxf", jdkTgz.getAbsolutePath, "-C", jdkHome.getAbsolutePath)) !!
+    sbt.Process("tar", Seq("pxf", jdkTgz.getAbsolutePath, "-C", jdkHome.getAbsolutePath)).!!
+  }
+
+  def parseSlugResponseForBlobUrl(json: String): String = {
+    val urlMatch = """(?<="url"\s*:\s*")https://\S+(?="\s*\n*\r*}\s*,)""".r.findFirstIn(json)
+    if (urlMatch.isEmpty) throw new Exception("No blob url returned by Platform API!")
+    urlMatch.head
+  }
+
+  def parseSlugResponseForSlugId(json: String): String = {
+    val urlMatch = """(?<="id"\s*:\s*")\S+(?="\s*\n*\r*,""".r.findFirstIn(json)
+    if (urlMatch.isEmpty) throw new Exception("No blob url returned by Platform API!")
+    urlMatch.head
   }
 }
 
@@ -153,8 +162,6 @@ object SetConfigVars {
     val urlStr = "https://api.heroku.com/apps/" + URLEncoder.encode(appName, "UTF-8") + "/config_vars"
 
     val data = "{" + config.map{case(k,v) => "\""+k+"\":\""+v+"\""}.mkString(",") + "}"
-
-    println("data: " + data)
 
     val headers = Map(
       "Authorization" -> encodedApiKey,
@@ -218,7 +225,6 @@ object Curl {
 
     con.getOutputStream.write(data.getBytes("UTF-8"))
 
-    println("response code: " + con.getResponseCode)
     val reader = new BufferedReader(new InputStreamReader(con.getInputStream))
 
     var output = ""

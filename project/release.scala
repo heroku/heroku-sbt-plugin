@@ -11,10 +11,11 @@ object Release {
       case (dash, id) => dash + id
     }
     val version: Parser[String] = (Digit ~ chars(".0123456789").* ~ classifier.?) map {
-      case ((first, rest), optClass) => ((first +: rest).mkString + optClass.getOrElse(""))
+      case ((first, rest), optClass) =>
+        (first +: rest).mkString + optClass.getOrElse("")
     }
     val complete = (chars("v") ~ token(version, "<version number>")) map {
-      case (v, num) => v + num
+      case (v, num) => String.valueOf(v) + num
     }
     complete
   }
@@ -38,22 +39,13 @@ object Release {
   }
 
   def releaseAction(state: State, tag: String): State = {
-    // TODO - Ensure we're releasing on JDK 6, so we're binary compatible.
-    // First check to ensure we have a sane publishing environment...
-    "bintrayCheckCredentials" ::
-      "+ test" ::
-      // Workaround for 0.12.4 scripted issue
-      "set scalaVersion in Global := \"2.10.2\"" ::
-      scriptedForPlatform ::
-      // TODO - Signed tags, possibly using pgp keys?
-      ("git tag " + tag) ::
-      "reload" ::
-      // TODO - once we figure out bintray + publishSigned, switch to signed
-      // releases.
-      "+ publishSigned" ::
-      "bintrayPublishAllStaged" ::
-      ("git push origin " + tag) ::
-      state
+    "bintrayEnsureCredentials" ::
+    scriptedForPlatform ::
+    ("git tag " + tag) ::
+    "reload" ::
+    "+ publish" ::
+    ("git push origin " + tag) ::
+    state
   }
 
   val releaseCommand =

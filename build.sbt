@@ -8,9 +8,7 @@ organization := "com.heroku"
 
 scalaVersion in Global := "2.10.4"
 
-libraryDependencies ++= Seq(
-  "io.spray" %% "spray-json" % "1.2.6"
-)
+scalacOptions in Compile += "-deprecation"
 
 scriptedSettings
 
@@ -23,10 +21,12 @@ scriptedLaunchOpts := { scriptedLaunchOpts.value ++
 
 publishMavenStyle := false
 
-bintraySettings
+bintrayPublishSettings
 
 repository in bintray := "sbt-plugins"
 
 licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
 
 bintrayOrganization in bintray := Some("heroku")
+
+Release.settings
