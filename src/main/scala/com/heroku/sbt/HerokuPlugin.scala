@@ -64,7 +64,7 @@ object Deploy {
 
       val startScript = (appTargetDir / "universal" / "stage" / "bin" ** "*").
         filter(!_.getName.endsWith(".bat")).
-        filter(!_.getName.eq("bin")).
+        filter(!_.getName.equals("bin")).
         get(0)
 
       slugData = "{\"process_types\":{\"web\":\"target/universal/stage/bin/" + startScript.getName + " -Dhttp.port=$PORT\"}}"
@@ -132,13 +132,13 @@ object Deploy {
   }
 
   def parseSlugResponseForBlobUrl(json: String): String = {
-    val urlMatch = """(?<="url"\s*:\s*")https://\S+(?="\s*\n*\r*}\s*,)""".r.findFirstIn(json)
+    val urlMatch = """(?<="url"\s?:\s?")https://\S+(?="\s?\n?\r?}\s?,)""".r.findFirstIn(json)
     if (urlMatch.isEmpty) throw new Exception("No blob url returned by Platform API!")
     urlMatch.head
   }
 
   def parseSlugResponseForSlugId(json: String): String = {
-    val urlMatch = """(?<="id"\s*:\s*")\S+(?="\s*\n*\r*,""".r.findFirstIn(json)
+    val urlMatch = """(?<="id"\s?:\s?")\S+(?="\s?\n?\r?,)""".r.findFirstIn(json)
     if (urlMatch.isEmpty) throw new Exception("No blob url returned by Platform API!")
     urlMatch.head
   }
