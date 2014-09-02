@@ -15,13 +15,20 @@ object HerokuPlugin extends AutoPlugin {
     val deployHeroku = taskKey[Unit]("Deploy to Heroku.")
     val herokuJdkVersion = settingKey[String]("Set the major version of the JDK to use.")
     val herokuAppName = settingKey[String]("Set the name of the Heroku application.")
+    val herokuConfigVars = settingKey[Map[String,String]]("Config variables to set on the Heroku application.")
 
     lazy val baseHerokuSettings: Seq[Def.Setting[_]] = Seq(
       deployHeroku := {
-        Deploy(target.value, (herokuJdkVersion in deployHeroku).value, (herokuAppName in deployHeroku).value, streams.value.log)
+        Deploy(
+          target.value,
+          (herokuJdkVersion in deployHeroku).value,
+          (herokuAppName in deployHeroku).value,
+          (herokuConfigVars in deployHeroku).value,
+          streams.value.log)
       },
       herokuJdkVersion in Compile := "1.7",
-      herokuAppName in Compile := ""
+      herokuAppName in Compile := "",
+      herokuConfigVars in Compile := Map[String,String]()
     )
   }
 
@@ -36,7 +43,7 @@ object HerokuPlugin extends AutoPlugin {
 }
 
 object Deploy {
-  def apply(targetDir: java.io.File, jdkVersion: String, appName: String, log: Logger): Unit = {
+  def apply(targetDir: java.io.File, jdkVersion: String, appName: String, configVars: Map[String,String], log: Logger): Unit = {
     if (appName.isEmpty) throw new IllegalArgumentException("herokuAppName must be defined")
 
     // TODO externalize these URLs
@@ -94,7 +101,7 @@ object Deploy {
       "PATH" -> ".jdk/bin:/usr/local/bin:/usr/bin:/bin",
       "JAVA_OPTS" -> "-Xmx384m -Xss512k -XX:+UseCompressedOops",
       "SBT_OPTS" -> "-Xmx384m -Xss512k -XX:+UseCompressedOops"
-    ))
+    ) ++ configVars)
     val slugResponse = CreateSlug(appName, encodedApiKey, slugData)
 
     log.debug("Heroku Slug response: " + slugResponse)

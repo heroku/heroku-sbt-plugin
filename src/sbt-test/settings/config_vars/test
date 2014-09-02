@@ -1,0 +1,5 @@
+# Stage the distribution and ensure it can be deployed.
+> createApp
+> show stage
+> show deployHeroku
+> check
