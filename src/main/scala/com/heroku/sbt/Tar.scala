@@ -72,6 +72,7 @@ object Pack {
 
     val outputFile = outputDir / (archiveBasename + ".tgz")
     sbt.IO.gzip(archive, outputFile)
+    sbt.IO.delete(archive)
     outputFile
   }
 }
