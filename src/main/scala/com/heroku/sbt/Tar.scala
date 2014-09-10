@@ -55,7 +55,7 @@ object Pack {
           val tarFile = new TarArchiveEntry(file, sbt.IO.relativize(workingDir, file).get)
           tarFile.setSize(file.length())
           if (java.nio.file.Files.isExecutable(java.nio.file.FileSystems.getDefault.getPath(file.getAbsolutePath))) {
-            tarFile.setMode(0100755)
+            tarFile.setMode(493)
           }
           tarBall.putArchiveEntry(tarFile)
           IOUtils.copy(new FileInputStream(file), tarBall)
@@ -112,7 +112,12 @@ object Unpack {
             len = input.read(btoRead)
           }
         } finally {
-          bout.close
+          bout.close()
+        }
+
+        val mode = entry.asInstanceOf[TarArchiveEntry].getMode
+        if (mode == 493) {
+          destPath.setExecutable(true)
         }
       }
     }
