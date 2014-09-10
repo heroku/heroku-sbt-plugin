@@ -1,4 +1,4 @@
-Heroku sbt Plugin
+Heroku sbt Plugin [![Build Status](https://travis-ci.org/heroku/sbt-heroku.svg?branch=master)](https://travis-ci.org/heroku/sbt-heroku)
 =================
 
 This plugin is used to deploy Scala and Play applications directly to Heroku without pushing to a Git repository.
