@@ -36,7 +36,7 @@ object Deploy {
 
     val slugData = createSlugData(buildSlug(targetDir, appTargetDir, herokuDir, appDir, jdkUrl, procTypes, log))
 
-    sbt.Process(Seq("tar", "pczf", "slug.tgz", "./app"), herokuDir).!!
+    val slugFile = Tar.create("slug", "./app", herokuDir)
 
     log.info("---> Creating Slug...")
     SetConfigVars(appName, encodedApiKey, Map(
@@ -55,7 +55,7 @@ object Deploy {
     log.debug("Heroku Slug Id: " + slugId)
 
     log.info("---> Uploading Slug...")
-    UploadSlug(blobUrl, herokuDir / "slug.tgz")
+    UploadSlug(blobUrl, slugFile)
 
     log.info("---> Releasing the Slug...")
     val releaseResponse = ReleaseSlug(appName, encodedApiKey, slugId)
@@ -126,7 +126,7 @@ object Deploy {
     val jdkTgz = herokuDir / "jdk-pkg.tar.gz"
     sbt.IO.download(jdkUrl, jdkTgz)
 
-    sbt.Process("tar", Seq("pxf", jdkTgz.getAbsolutePath, "-C", jdkHome.getAbsolutePath)).!!
+    Tar.extract(jdkTgz, jdkHome)
   }
 
   def parseSlugResponseForBlobUrl(json: String): String = {

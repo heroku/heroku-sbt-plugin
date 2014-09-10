@@ -13,6 +13,7 @@ object HerokuPlugin extends AutoPlugin {
     val herokuConfigVars = settingKey[Map[String,String]]("Config variables to set on the Heroku application.")
     val herokuJdkUrl = settingKey[String]("The location of the JDK binary.")
     val herokuProcessTypes = settingKey[Map[String,String]]("The process types to run on Heroku (similar to Procfile).")
+    val herokuUseTar = settingKey[Boolean]("The process types to run on Heroku (similar to Procfile).")
 
     lazy val baseHerokuSettings: Seq[Def.Setting[_]] = Seq(
       deployHeroku := {

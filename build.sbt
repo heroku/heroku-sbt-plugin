@@ -10,6 +10,11 @@ scalaVersion in Global := "2.10.4"
 
 scalacOptions in Compile += "-deprecation"
 
+libraryDependencies ++= Seq(
+  "org.apache.commons" % "commons-compress" % "1.8.1",
+  "org.kamranzafar" % "jtar" % "2.2"
+)
+
 scriptedSettings
 
 scriptedLaunchOpts <+= version apply { v => "-Dproject.version="+v }
