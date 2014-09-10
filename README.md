@@ -11,10 +11,10 @@ Add the following to your `project/plugins.sbt` file:
 ```
 resolvers += Resolver.url(
   "bintray-sbt-plugin-releases",
-   url("http://dl.bintray.com/content/sbt/sbt-plugin-releases"))(
+   url("http://dl.bintray.com/heroku/sbt-plugins/"))(
        Resolver.ivyStylePatterns)
 
-addSbtPlugin("com.heroku" % "sbt-heroku" % "0.1-SNAPSHOT")
+addSbtPlugin("com.heroku" % "sbt-heroku" % "0.1.1-SNAPSHOT")
 ```
 
 If you're not using Play, then you'll also need to you'll also need to add the
