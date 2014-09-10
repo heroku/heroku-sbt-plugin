@@ -10,7 +10,7 @@ Add the following to your `project/plugins.sbt` file:
 
 ```
 resolvers += Resolver.url(
-  "bintray-sbt-plugin-releases",
+  "heroku-sbt-plugin-releases",
    url("http://dl.bintray.com/heroku/sbt-plugins/"))(
        Resolver.ivyStylePatterns)
 
