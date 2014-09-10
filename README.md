@@ -44,7 +44,7 @@ And replace "xxx-xxx-xxxx" with the value of your Heroku API token.
 
 +  It is required that you use sbt 0.13.5 or greater.
 
-+  You must have a `tar` command available on your system.
++  If using Java 1.6 you must have a `tar` command available on your system.
 
 +  This plugin has not been tested with Play 2.0 or 2.1.
 
@@ -57,6 +57,28 @@ herokuJdkVersion in Compile := "1.7"
 ```
 
 Valid values are `1.6`, `1.7`, and `1.8`. The default is `1.7`
+
+You can set configuration variables like so:
+
+```
+herokuConfigVars in Compile := Map(
+  "MY_VAR" -> "some value",
+  "JAVA_OPTS" -> "-Xmx384m -Xss512k -XX:+UseCompressedOops"
+)
+```
+
+Any variable defined in `herokuConfigVars` will override defaults.
+
+You may set process types (similar to a `Procfile`) with `herokuProcessTypes`:
+
+```
+herokuProcessTypes in Compile := Map(
+  "web" -> "target/universal/stage/bin/my-app -Dtest.var=monkeys -Dhttp.port=$PORT",
+  "worker" -> "java -jar target/universal/stage/lib/my-worker.jar"
+)
+```
+
+See the `src/sbt-test` directory for examples.
 
 ## Hacking
 
