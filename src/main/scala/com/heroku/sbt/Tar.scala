@@ -35,8 +35,7 @@ object Tar {
   }
 
   def useNativeTar: Boolean = {
-    val ver = System.getProperty("java.specification.version")
-    !("1.7".equals(ver) || "1.8".equals(ver))
+    !SystemSettings.hasNio
   }
 }
 
