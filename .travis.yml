@@ -1,0 +1,9 @@
+language: scala
+
+env:
+  global:
+    secure: LinsNOLBexP4FpUm13++rrPcH/OsaayBtZGL1MoBBRXTMdIlZWHlDI6/Hqgx/5cSxOJICIlaFhCHm67fAhNJuq+lOdty9dZZ2vLKitofxuE0OjcqaawkLBX73smthYCw6TDmTgn4R4xvuHDowr5TCCxii4om/8/0wgF4tu85zws=
+
+install: ./etc/travis-setup.sh
+
+script: sbt scripted
