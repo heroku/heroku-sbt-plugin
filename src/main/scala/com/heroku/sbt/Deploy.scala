@@ -106,7 +106,9 @@ object Deploy {
   }
 
   def createSlugData(procTypes: Map[String,String]): String = {
-    "{\"process_types\":{" + procTypes.foldLeft(""){
+    "{" +
+      "\"buildpack_provided_description\":\"sbt-heroku\"," +
+      "\"process_types\":{" + procTypes.foldLeft(""){
       case (s, (k, v)) => (if (s.isEmpty) s else s + ", ") + "\"" + k + "\":\"" + v + "\""
     } + "}}"
   }
