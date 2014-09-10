@@ -9,10 +9,8 @@ This is can be useful when deploying from a CI server.
 Add the following to your `project/plugins.sbt` file:
 
 ```
-resolvers += Resolver.url(
-  "heroku-sbt-plugin-releases",
-   url("http://dl.bintray.com/heroku/sbt-plugins/"))(
-       Resolver.ivyStylePatterns)
+resolvers += Resolver.url("heroku-sbt-plugin-releases",
+  url("http://dl.bintray.com/heroku/sbt-plugins/"))(Resolver.ivyStylePatterns)
 
 addSbtPlugin("com.heroku" % "sbt-heroku" % "0.1.1-SNAPSHOT")
 ```
