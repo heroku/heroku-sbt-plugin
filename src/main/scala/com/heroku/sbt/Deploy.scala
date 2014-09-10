@@ -38,12 +38,19 @@ object Deploy {
 
     val slugFile = Tar.create("slug", "./app", herokuDir)
 
+
+
     log.info("---> Creating Slug...")
-    SetConfigVars(appName, encodedApiKey, Map(
-      "PATH" -> ".jdk/bin:/usr/local/bin:/usr/bin:/bin",
-      "JAVA_OPTS" -> "-Xmx384m -Xss512k -XX:+UseCompressedOops",
-      "SBT_OPTS" -> "-Xmx384m -Xss512k -XX:+UseCompressedOops"
-    ) ++ configVars)
+
+    val existingConfigVars = GetConfigVars(appName, encodedApiKey)
+    log.debug("Heroku existing config variables: " + existingConfigVars)
+
+    SetConfigVars(appName, encodedApiKey,
+        addConfigVar("PATH", ".jdk/bin:/usr/local/bin:/usr/bin:/bin", existingConfigVars) ++
+        addConfigVar("JAVA_OPTS", "-Xmx384m -Xss512k -XX:+UseCompressedOops", existingConfigVars) ++
+        addConfigVar("SBT_OPTS", "-Xmx384m -Xss512k -XX:+UseCompressedOops", existingConfigVars) ++
+        configVars)
+
     val slugResponse = CreateSlug(appName, encodedApiKey, slugData)
 
     log.debug("Heroku Slug response: " + slugResponse)
@@ -70,6 +77,14 @@ object Deploy {
     } else {
       log.error("You must stage your application before deploying it!")
       throw new IllegalArgumentException()
+    }
+  }
+
+  def addConfigVar(key: String, value: String, existingConfigVars: String): Map[String,String] = {
+    if (!existingConfigVars.contains(key)) {
+      Map(key -> value)
+    } else {
+      Map()
     }
   }
 
@@ -157,17 +172,31 @@ object CreateSlug {
   }
 }
 
-object SetConfigVars {
-  def apply(appName: String, encodedApiKey: String, config: Map[String,String]): String = {
-    val urlStr = "https://api.heroku.com/apps/" + URLEncoder.encode(appName, "UTF-8") + "/config_vars"
-
-    val data = "{" + config.map{case(k,v) => "\""+k+"\":\""+v+"\""}.mkString(",") + "}"
+object GetConfigVars {
+  def apply(appName: String, encodedApiKey: String): String = {
+    val urlStr = "https://api.heroku.com/apps/" + URLEncoder.encode(appName, "UTF-8") + "/config-vars"
 
     val headers = Map(
       "Authorization" -> encodedApiKey,
-      "Content-Type" -> "application/json")
+      "Accept" -> "application/vnd.heroku+json; version=3")
 
-    Curl(urlStr, "PUT", data, headers)
+    Curl(urlStr, "GET", headers)
+  }
+}
+
+object SetConfigVars {
+  def apply(appName: String, encodedApiKey: String, config: Map[String,String]): Unit = {
+    if (config.isEmpty) {
+      val urlStr = "https://api.heroku.com/apps/" + URLEncoder.encode(appName, "UTF-8") + "/config_vars"
+
+      val data = "{" + config.map { case (k, v) => "\"" + k + "\":\"" + v + "\""}.mkString(",") + "}"
+
+      val headers = Map(
+        "Authorization" -> encodedApiKey,
+        "Content-Type" -> "application/json")
+
+      Curl(urlStr, "PUT", data, headers)
+    }
   }
 }
 
