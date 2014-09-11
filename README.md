@@ -15,7 +15,7 @@ resolvers += Resolver.url("heroku-sbt-plugin-releases",
 addSbtPlugin("com.heroku" % "sbt-heroku" % "0.1.1")
 ```
 
-If you're not using Play, then you'll also need to you'll also need to add the
+If you're not using Play, then you'll also need to add the
 [sbt-native-packager plugin](https://github.com/sbt/sbt-native-packager).
 
 Next, add something like this to your `build.sbt`
