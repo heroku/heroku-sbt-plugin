@@ -38,8 +38,6 @@ object Deploy {
 
     val slugFile = Tar.create("slug", "./app", herokuDir)
 
-
-
     log.info("---> Creating Slug...")
 
     val existingConfigVars = GetConfigVars(appName, encodedApiKey)
@@ -186,7 +184,7 @@ object GetConfigVars {
 
 object SetConfigVars {
   def apply(appName: String, encodedApiKey: String, config: Map[String,String]): Unit = {
-    if (config.isEmpty) {
+    if (!config.isEmpty) {
       val urlStr = "https://api.heroku.com/apps/" + URLEncoder.encode(appName, "UTF-8") + "/config_vars"
 
       val data = "{" + config.map { case (k, v) => "\"" + k + "\":\"" + v + "\""}.mkString(",") + "}"

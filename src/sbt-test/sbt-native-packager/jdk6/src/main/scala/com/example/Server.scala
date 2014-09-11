@@ -21,7 +21,7 @@ class Hello extends Service[HttpRequest, HttpResponse] {
   def apply(request: HttpRequest): Future[HttpResponse] = {
     val response = Response()
 
-    response.setContentString("Hello from Scala")
+    response.setContentString("Hello from Scala on JDK " + System.getProperty("java.specification.version"))
 
     Future(response)
   }

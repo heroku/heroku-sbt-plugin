@@ -31,7 +31,7 @@ TaskKey[Unit]("check") <<= (packageBin in Universal, streams) map { (zipFile, st
       for (line <- scala.io.Source.fromURL("http://" + remoteAppName + ".herokuapp.com").getLines())
         sb.append(line).append("\n")
       val page = sb.toString()
-      if (!page.contains("Hello from Scala"))
+      if (!page.contains("Hello from Scala on JDK 1.8"))
         sys.error("There is a problem with the webpage: " + page)
       retries = 99999
     } catch {
