@@ -1,10 +1,11 @@
 package com.heroku.sbt
 
-import java.io.{InputStreamReader, BufferedReader, FileInputStream, BufferedInputStream}
+import java.io.{InputStreamReader, BufferedReader, FileInputStream, BufferedInputStream, FileNotFoundException}
 import java.net.{URL, URLEncoder}
 import javax.net.ssl.HttpsURLConnection
 
 import sbt._
+import sbt.compiler.CompileFailed
 import sun.misc.BASE64Encoder
 
 object Deploy {
@@ -39,6 +40,11 @@ object Deploy {
     val slugFile = Tar.create("slug", "./app", herokuDir)
 
     log.info("---> Creating Slug...")
+
+    val appInfo = GetApplicationInfo(appName, encodedApiKey).getOrElse {
+      throw new CompileFailed(Array(), "App '%s' not found. Make sure to specify a valid app.".format(appName), Array())
+    }
+    log.debug("Heroku app info: " + appInfo)
 
     val existingConfigVars = GetConfigVars(appName, encodedApiKey)
     log.debug("Heroku existing config variables: " + existingConfigVars)
@@ -167,6 +173,23 @@ object CreateSlug {
       "Accept" -> "application/vnd.heroku+json; version=3")
 
     Curl(urlStr, "POST", data, headers)
+  }
+}
+
+object GetApplicationInfo {
+  def apply(appName: String, encodedApiKey: String): Option[String] = {
+    val urlStr = "https://api.heroku.com/apps/" + URLEncoder.encode(appName, "UTF-8")
+
+    val headers = Map(
+      "Authorization" -> encodedApiKey,
+      "Accept" -> "application/vnd.heroku+json; version=3")
+
+    try {
+      Some(Curl(urlStr, "GET", headers))
+    } catch {
+      case ex: FileNotFoundException =>
+        None
+    }
   }
 }
 
