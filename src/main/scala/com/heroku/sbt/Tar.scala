@@ -1,7 +1,7 @@
 package com.heroku.sbt
 
 import java.io._
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry
+import org.apache.commons.compress.archivers.tar.{TarArchiveOutputStream, TarArchiveEntry}
 import org.apache.commons.compress.utils.IOUtils
 import sbt._
 
@@ -64,6 +64,7 @@ object Pack {
     }
 
     val tarBall = new ArchiveStreamFactory().createArchiveOutputStream(ArchiveStreamFactory.TAR, tarOutput)
+    tarBall.asInstanceOf[TarArchiveOutputStream].setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
     try {
       addFilesToTar(tarBall, workingDir / directory)
     } finally {
