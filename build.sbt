@@ -24,8 +24,6 @@ scriptedLaunchOpts := { scriptedLaunchOpts.value ++
     "-Dheroku.uuid=" + java.util.UUID.randomUUID.toString.substring(0,15))
 }
 
-scriptedBufferLog := false
-
 publishMavenStyle := false
 
 bintrayPublishSettings
