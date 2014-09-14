@@ -12,7 +12,7 @@ scalacOptions in Compile += "-deprecation"
 
 libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-compress" % "1.8.1",
-  "org.kamranzafar" % "jtar" % "2.2"
+  "com.github.pathikrit" %% "dijon" % "0.2.4"
 )
 
 scriptedSettings
@@ -23,6 +23,8 @@ scriptedLaunchOpts := { scriptedLaunchOpts.value ++
   Seq("-Xmx1024M", "-XX:MaxPermSize=256M",
     "-Dheroku.uuid=" + java.util.UUID.randomUUID.toString.substring(0,15))
 }
+
+scriptedBufferLog := false
 
 publishMavenStyle := false
 
