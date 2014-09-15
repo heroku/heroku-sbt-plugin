@@ -36,12 +36,12 @@ object Deploy {
 
     val encodedApiKey = getApiKey
 
-    val addData = buildSlug(targetDir, appTargetDir, herokuDir, appDir, jdkUrl)
-    addData.getIncludedFiles.foreach { case (originalLocation, _) =>
+    val appData = buildSlug(targetDir, appTargetDir, herokuDir, appDir, jdkUrl)
+    appData.getIncludedFiles.foreach { case (originalLocation, _) =>
       log.info("     - including: ./" + sbt.IO.relativize(targetDir.getParentFile, originalLocation).get)
     }
 
-    val slugJson = createSlugData(addData.getDefaultProcessTypes ++ procTypes)
+    val slugJson = createSlugData(appData.getDefaultProcessTypes ++ procTypes)
     log.debug("Heroku Slug data: " + slugJson)
 
     try {
@@ -60,7 +60,6 @@ object Deploy {
           configVars)
 
       val slugResponse = CreateSlug(appName, encodedApiKey, slugJson)
-
       log.debug("Heroku Slug response: " + slugResponse.toMap.filter(_._2 != null))
 
       val blobUrl = slugResponse.blob.url.as[String].get
@@ -90,7 +89,8 @@ object Deploy {
         throw ce
     } finally {
       // move back because we had to move earlier to save file permissions
-      addData.getIncludedFiles.foreach { case (originalLocation, newLocation) =>
+      appData.getIncludedFiles.foreach { case (originalLocation, newLocation) =>
+        log.debug("Heorku moving: " + newLocation.getPath + " -> " + originalLocation.getPath)
         sbt.IO.move(newLocation, originalLocation)
       }
     }
