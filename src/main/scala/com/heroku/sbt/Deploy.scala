@@ -36,12 +36,19 @@ object Deploy {
 
     val encodedApiKey = getApiKey
 
-    val slugData = createSlugData(buildSlug(targetDir, appTargetDir, herokuDir, appDir, jdkUrl, procTypes, log))
+    val addData = buildSlug(targetDir, appTargetDir, herokuDir, appDir, jdkUrl)
+    addData.getIncludedFiles.foreach { case (originalLocation, _) =>
+      log.info("     - including: ./" + sbt.IO.relativize(targetDir.getParentFile, originalLocation).get)
+    }
+
+    val slugJson = createSlugData(addData.getDefaultProcessTypes ++ procTypes)
+    log.debug("Heroku Slug data: " + slugJson)
 
     try {
+      log.info("---> Creating slug...")
       val slugFile = Tar.create("slug", "./app", herokuDir)
-
-      log.info("---> Creating Slug...")
+      log.info("     - file: ./" + sbt.IO.relativize(targetDir.getParentFile, slugFile).get)
+      log.info("     - size: " + (slugFile.length / (1024 * 1024))  + "MB")
 
       val existingConfigVars = GetConfigVars(appName, encodedApiKey)
       log.debug("Heroku existing config variables: " + existingConfigVars)
@@ -52,22 +59,27 @@ object Deploy {
           addConfigVar("SBT_OPTS", "-Xmx384m -Xss512k -XX:+UseCompressedOops", existingConfigVars) ++
           configVars)
 
-      val slugResponse = CreateSlug(appName, encodedApiKey, slugData)
+      val slugResponse = CreateSlug(appName, encodedApiKey, slugJson)
 
       log.debug("Heroku Slug response: " + slugResponse.toMap.filter(_._2 != null))
 
       val blobUrl = slugResponse.blob.url.as[String].get
       val slugId = slugResponse.id.as[String].get
+      val stackName = slugResponse.stack.name.as[String].get
 
       log.debug("Heroku Blob URL: " + blobUrl)
       log.debug("Heroku Slug Id: " + slugId)
 
-      log.info("---> Uploading Slug...")
+      log.info("---> Uploading slug...")
       UploadSlug(blobUrl, slugFile)
+      log.info("     - id: " + slugId)
+      log.info("     - stack: " + stackName)
+      log.info("     - process types: " + slugResponse.process_types.toMap.keys.mkString(", "))
 
-      log.info("---> Releasing the Slug...")
+      log.info("---> Releasing...")
       val releaseResponse = ReleaseSlug(appName, encodedApiKey, slugId)
       log.debug("Heroku Release response: " + releaseResponse)
+      log.info("     - version: " + releaseResponse.version.as[Double].get.toInt)
     } catch {
       case ce: CurlException =>
         if (ce.getCode == 404) {
@@ -77,18 +89,20 @@ object Deploy {
         }
         throw ce
     } finally {
-      // we have to move because copying destroys file permissions. so now put stuff back.
+      // move back because we had to move earlier to save file permissions
+      addData.getIncludedFiles.foreach { case (originalLocation, newLocation) =>
+        sbt.IO.move(newLocation, originalLocation)
+      }
     }
   }
 
-  def buildSlug(targetDir: File, appTargetDir: File, herokuDir: File, appDir: File, jdkUrl: URL, procTypes: Map[String,String], log: Logger): Map[String,String] = {
+  def buildSlug(targetDir: File, appTargetDir: File, herokuDir: File, appDir: File, jdkUrl: URL): AppData = {
     if ((targetDir / "universal").exists) {
-      buildUniversalSlug(targetDir, appTargetDir, herokuDir, appDir, jdkUrl, procTypes)
+      buildUniversalSlug(targetDir, appTargetDir, herokuDir, appDir, jdkUrl)
     } else if ((targetDir / "start").exists) {
-      buildStartScriptSlug(targetDir, appTargetDir, herokuDir, appDir, jdkUrl, procTypes)
+      buildStartScriptSlug(targetDir, appTargetDir, herokuDir, appDir, jdkUrl)
     } else {
-      log.error("You must stage your application before deploying it!")
-      throw new IllegalArgumentException()
+      throw new CompileFailed(Array(), "You must stage your application before deploying it!", Array())
     }
   }
 
@@ -100,36 +114,39 @@ object Deploy {
     }
   }
 
-  def buildUniversalSlug(targetDir: File, appTargetDir: File, herokuDir: File, appDir: File, jdkUrl: URL, procTypes: Map[String,String]): Map[String,String] = {
+  def buildUniversalSlug(targetDir: File, appTargetDir: File, herokuDir: File, appDir: File, jdkUrl: URL): AppData = {
+    val includedFiles = Map[File,File](targetDir / "universal" -> appTargetDir / "universal")
+
     // move because copy won't keep file permissions. we'll put it back later
-    sbt.IO.move(targetDir / "universal", appTargetDir / "universal")
+    includedFiles.foreach { case (originalLocation, newLocation) =>
+      sbt.IO.move(originalLocation, newLocation)
+    }
 
     installJdk(herokuDir, appDir, jdkUrl)
 
-    if (procTypes.isEmpty) {
-      val startScript = (appTargetDir / "universal" / "stage" / "bin" ** "*").
-        filter(!_.getName.endsWith(".bat")).
-        filter(!_.getName.equals("bin")).
-        get(0)
+    val startScript = (appTargetDir / "universal" / "stage" / "bin" ** "*").
+      filter(!_.getName.endsWith(".bat")).
+      filter(!_.getName.equals("bin")).
+      get(0)
 
-      Map("web" -> ("target/universal/stage/bin/" + startScript.getName + " -Dhttp.port=$PORT"))
-    } else {
-      procTypes
-    }
+    new AppData(includedFiles,
+      Map("web" -> ("target/universal/stage/bin/" + startScript.getName + " -Dhttp.port=$PORT")))
   }
 
-  def buildStartScriptSlug(targetDir: File, appTargetDir: File, herokuDir: File, appDir: File, jdkUrl: URL, procTypes: Map[String,String]): Map[String,String] = {
+  def buildStartScriptSlug(targetDir: File, appTargetDir: File, herokuDir: File, appDir: File, jdkUrl: URL): AppData = {
+    val includedFiles = Map[File,File](
+      targetDir / "start" -> appTargetDir / "start",
+      targetDir / "staged" -> appTargetDir / "staged")
+
     // move because copy won't keep file permissions. we'll put it back later
-    sbt.IO.move(targetDir / "start", appTargetDir / "start")
-    sbt.IO.move(targetDir / "staged", appTargetDir / "staged")
+    includedFiles.foreach { case (originalLocation, newLocation) =>
+      sbt.IO.move(originalLocation, newLocation)
+    }
 
     installJdk(herokuDir, appDir, jdkUrl)
 
-    if (procTypes.isEmpty) {
-      Map("web" -> "target/start -Dhttp.port=$PORT $JAVA_OPTS")
-    } else {
-      procTypes
-    }
+    new AppData(includedFiles,
+      Map("web" -> "target/start -Dhttp.port=$PORT $JAVA_OPTS"))
   }
 
   def createSlugData(procTypes: Map[String,String]): String = {
@@ -157,6 +174,11 @@ object Deploy {
 
     Tar.extract(jdkTgz, jdkHome)
   }
+}
+
+class AppData (includedFiles: Map[File, File], processTypes: Map[String,String]) {
+  def getIncludedFiles=includedFiles
+  def getDefaultProcessTypes=processTypes
 }
 
 object CreateSlug {
