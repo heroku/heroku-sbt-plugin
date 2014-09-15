@@ -3,7 +3,7 @@
 > show stage
 $ exists target/universal/stage/bin/scala-getting-started
 > show deployHeroku
-$ exists target/heroku/app/target/universal/stage/bin/scala-getting-started
+$ exists target/heroku/app/
 $ exists target/heroku/jdk-pkg.tar.gz
 $ exists target/heroku/slug.tgz
 $ exists target/heroku/diagnostics.log

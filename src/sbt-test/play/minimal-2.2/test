@@ -3,7 +3,8 @@
 > show stage
 $ exists target/universal/stage/bin/sample-play-app
 > show deployHeroku
-$ exists target/heroku/app/target/universal/stage/bin/sample-play-app
+$ exists target/heroku/app/
 $ exists target/heroku/jdk-pkg.tar.gz
 $ exists target/heroku/slug.tgz
+$ exists target/heroku/diagnostics.log
 > check

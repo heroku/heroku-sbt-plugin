@@ -115,7 +115,7 @@ object Deploy {
   }
 
   def buildUniversalSlug(targetDir: File, appTargetDir: File, herokuDir: File, appDir: File, jdkUrl: URL): AppData = {
-    val includedFiles = Map[File,File](targetDir / "universal" -> appTargetDir / "universal")
+    val includedFiles = Map[File,File](targetDir / "universal" / "stage" -> appTargetDir / "universal" / "stage")
 
     // move because copy won't keep file permissions. we'll put it back later
     includedFiles.foreach { case (originalLocation, newLocation) =>
