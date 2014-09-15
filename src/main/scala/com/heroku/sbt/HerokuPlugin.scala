@@ -14,6 +14,8 @@ object HerokuPlugin extends AutoPlugin {
     val herokuJdkUrl = settingKey[String]("The location of the JDK binary.")
     val herokuProcessTypes = settingKey[Map[String,String]]("The process types to run on Heroku (similar to Procfile).")
 
+
+
     lazy val baseHerokuSettings: Seq[Def.Setting[_]] = Seq(
       deployHeroku := {
         if ((herokuJdkUrl in deployHeroku).value.isEmpty) {
@@ -49,5 +51,46 @@ object HerokuPlugin extends AutoPlugin {
   override def trigger = allRequirements
 
   override val projectSettings =
-    inConfig(Compile)(baseHerokuSettings)
+    inConfig(Compile)(baseHerokuSettings) ++
+    Seq(
+      extraLoggers := {
+        val currentFunction = extraLoggers.value
+        (key: ScopedKey[_]) => {
+          val taskOption = key.scope.task.toOption
+          val loggers = currentFunction(key)
+          if (taskOption.map(_.label) == Some("deployHeroku"))
+            new HerokuLogger(target.value / "heroku" / "diagnostics.log") +: loggers
+          else
+            loggers
+        }
+      }
+    )
+}
+
+class HerokuLogger (diagnosticsFile: File) extends BasicLogger {
+  IO.writeLines(diagnosticsFile, Seq(
+    "+--------------------------------------------------------------------",
+    "| JDK Version -> " + System.getProperty("java.version"),
+    "| Java Vendor -> " + System.getProperty("java.vendor.url"),
+    "| Java Home   -> " + System.getProperty("java.home"),
+    "| OS Arch     -> " + System.getProperty("os.arch"),
+    "| OS Name     -> " + System.getProperty("os.name"),
+    "| JAVA_OPTS   -> " + System.getenv("JAVA_OPTS"),
+    "| SBT_OPTS    -> " + System.getenv("SBT_OPTS"),
+    "+--------------------------------------------------------------------"
+  ))
+
+  def log(level: Level.Value, message: => String): Unit =
+    IO.write(diagnosticsFile, message + "\n", IO.defaultCharset, true)
+
+  def trace(t: => Throwable): Unit = {
+    IO.write(diagnosticsFile, t.getMessage, IO.defaultCharset, true)
+    IO.writeLines(diagnosticsFile, t.getStackTrace.map("    " + _.toString), IO.defaultCharset, true)
+  }
+
+  def success(message: => String): Unit =
+    IO.write(diagnosticsFile, message + "\n", IO.defaultCharset, true)
+
+  def control(event: ControlEvent.Value, message: => String): Unit = {}
+  def logAll(events: Seq[LogEvent]): Unit = events.foreach(log)
 }
