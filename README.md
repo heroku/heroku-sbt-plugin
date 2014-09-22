@@ -86,6 +86,26 @@ herokuIncludePaths in Compile := Seq(
 
 See the `src/sbt-test` directory for examples.
 
+## Deploying to Multiple Environments
+
+To deploy to multiple Heroku app environments, you can use either system properties, environment variables, or any other
+native sbt/Java configuration method.  For example, you might define your `appName` as a Map and choose a value with
+the system property as a key.
+
+```
+herokuAppName in Compile := Map(
+  "test" -> "your-heroku-app-test",
+  "stg"  -> "your-heroku-app-stage",
+  "prod" -> "your-heroku-app-prod"
+).getOrElse(sys.props("appEnv"), "your-heroku-app-dev")
+```
+
+Then run the sbt command like so:
+
+```
+$ sbt -DappEnv=test stage deployHeroku
+```
+
 ## Hacking
 
 In order to run the test suite, you must have the [Heroku Toolbelt](https://toolbelt.heroku.com/) installed. Then run:
