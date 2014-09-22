@@ -26,6 +26,10 @@ TaskKey[Unit]("createApp") <<= (packageBin in Universal, streams) map { (zipFile
   Process("heroku", Seq("create", "-n", remoteAppName)) ! streams.log
 }
 
+TaskKey[Unit]("cleanup") <<= (packageBin in Universal, streams) map { (zipFile, streams) =>
+  Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.log
+}
+
 TaskKey[Unit]("check") <<= (packageBin in Universal, streams) map { (zipFile, streams) =>
   val maxReties = 10
   var retries = 0

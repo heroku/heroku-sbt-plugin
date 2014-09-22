@@ -4,3 +4,4 @@
 > show deployHeroku
 > runWorker
 > check
+> cleanup

@@ -76,6 +76,14 @@ herokuProcessTypes in Compile := Map(
 )
 ```
 
+And you can include additional directories in the slug (they must be relative to the project root):
+
+```
+herokuIncludePaths in Compile := Seq(
+  "app", "conf/routes", "public/javascripts"
+)
+```
+
 See the `src/sbt-test` directory for examples.
 
 ## Hacking

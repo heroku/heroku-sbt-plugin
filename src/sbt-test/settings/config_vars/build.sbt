@@ -28,6 +28,10 @@ TaskKey[Unit]("createApp") <<= (packageBin in Universal, streams) map { (zipFile
   Process("heroku", Seq("create", "-n", remoteAppName)) ! streams.log
 }
 
+TaskKey[Unit]("cleanup") <<= (packageBin in Universal, streams) map { (zipFile, streams) =>
+  Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.log
+}
+
 TaskKey[Unit]("check") <<= (packageBin in Universal, streams) map { (zipFile, streams) =>
   val config = Process("heroku", Seq("config", "-a", remoteAppName)).!!
   if (!(config.contains("MY_VAR") && config.contains("monkeys with a y"))) {
