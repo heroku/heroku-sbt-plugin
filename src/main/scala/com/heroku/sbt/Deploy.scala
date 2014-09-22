@@ -10,7 +10,7 @@ import sun.misc.BASE64Encoder
 import com.github.pathikrit.dijon._
 
 object Deploy {
-  def apply(targetDir: java.io.File, jdkVersion: String, appName: String, configVars: Map[String,String], procTypes: Map[String,String], log: Logger): Unit = {
+  def apply(baseDirectory: java.io.File, targetDir: java.io.File, jdkVersion: String, appName: String, configVars: Map[String,String], procTypes: Map[String,String], includePaths: Seq[String], log: Logger): Unit = {
 
     // TODO externalize these URLs
     val jdkUrl = Map[String, String](
@@ -23,10 +23,10 @@ object Deploy {
 
     new java.net.URL(jdkUrl)
 
-    apply(targetDir, new java.net.URL(jdkUrl), appName, configVars, procTypes, log)
+    apply(baseDirectory, targetDir, new java.net.URL(jdkUrl), appName, configVars, procTypes, includePaths, log)
   }
 
-  def apply(targetDir: java.io.File, jdkUrl: URL, appName: String, configVars: Map[String,String], procTypes: Map[String,String], log: Logger): Unit = {
+  def apply(baseDirectory: java.io.File, targetDir: java.io.File, jdkUrl: URL, appName: String, configVars: Map[String,String], procTypes: Map[String,String], includePaths: Seq[String], log: Logger): Unit = {
     if (appName.isEmpty) throw new IllegalArgumentException("herokuAppName must be defined")
 
     log.info("---> Packaging application...")
@@ -39,6 +39,17 @@ object Deploy {
     val appData = buildSlug(targetDir, appTargetDir, herokuDir, appDir, jdkUrl)
     appData.getIncludedFiles.foreach { case (originalLocation, _) =>
       log.info("     - including: ./" + sbt.IO.relativize(targetDir.getParentFile, originalLocation).get)
+    }
+
+    includePaths.foreach {
+      case (path: String) =>
+        log.info("     - including: ./" + path)
+        val source = targetDir / ".." / path
+        if (source.isDirectory) {
+          sbt.IO.copyDirectory(source, appDir / path)
+        } else {
+          sbt.IO.copyFile(source, appDir / path)
+        }
     }
 
     val slugJson = createSlugData(appData.getDefaultProcessTypes ++ procTypes)

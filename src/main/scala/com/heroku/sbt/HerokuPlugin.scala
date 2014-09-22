@@ -13,26 +13,29 @@ object HerokuPlugin extends AutoPlugin {
     val herokuConfigVars = settingKey[Map[String,String]]("Config variables to set on the Heroku application.")
     val herokuJdkUrl = settingKey[String]("The location of the JDK binary.")
     val herokuProcessTypes = settingKey[Map[String,String]]("The process types to run on Heroku (similar to Procfile).")
-
-
+    val herokuIncludePaths = settingKey[Seq[String]]("A list of directory paths to include in the slug.")
 
     lazy val baseHerokuSettings: Seq[Def.Setting[_]] = Seq(
       deployHeroku := {
         if ((herokuJdkUrl in deployHeroku).value.isEmpty) {
           Deploy(
+            baseDirectory.value,
             target.value,
             (herokuJdkVersion in deployHeroku).value,
             (herokuAppName in deployHeroku).value,
             (herokuConfigVars in deployHeroku).value,
             (herokuProcessTypes in deployHeroku).value,
+            (herokuIncludePaths in deployHeroku).value,
             streams.value.log)
         } else {
           Deploy(
+            baseDirectory.value,
             target.value,
             new java.net.URL((herokuJdkUrl in deployHeroku).value),
             (herokuAppName in deployHeroku).value,
             (herokuConfigVars in deployHeroku).value,
             (herokuProcessTypes in deployHeroku).value,
+            (herokuIncludePaths in deployHeroku).value,
             streams.value.log)
         }
       },
@@ -40,7 +43,8 @@ object HerokuPlugin extends AutoPlugin {
       herokuAppName in Compile := "",
       herokuConfigVars in Compile := Map[String,String](),
       herokuProcessTypes in Compile := Map[String,String](),
-      herokuJdkUrl in Compile := ""
+      herokuJdkUrl in Compile := "",
+      herokuIncludePaths in Compile := Seq()
     )
   }
 
