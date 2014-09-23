@@ -11,26 +11,56 @@ import sbt.compiler.CompileFailed
 import sun.misc.BASE64Encoder
 import com.github.pathikrit.dijon._
 
-object Deploy {
-  def apply(baseDirectory: java.io.File, targetDir: java.io.File, jdkVersion: String, appName: String, configVars: Map[String,String], procTypes: Map[String,String], includePaths: Seq[String], log: Logger): Unit = {
+class DeployBuilder {
+  private var baseDirectory: Option[File] = None
+  private var targetDir: Option[File] = None
+  private var jdkUrl: Option[URL] = None
+  private var appName: Option[String] = None
+  private var configVars = Map[String,String]()
+  private var procTypes = Map[String,String]()
+  private var includePaths = Seq[String]()
+  private var logger: Option[Logger] = None
 
-    // TODO externalize these URLs
-    val jdkUrl = Map[String, String](
+  def withJdkVersion(jdkVersion: String): DeployBuilder = {
+    val jdkUrlString = Map[String, String](
       "1.6" -> "https://lang-jvm.s3.amazonaws.com/jdk/openjdk1.6-latest.tar.gz",
       "1.7" -> "https://lang-jvm.s3.amazonaws.com/jdk/openjdk1.7-latest.tar.gz",
       "1.8" -> "https://lang-jvm.s3.amazonaws.com/jdk/openjdk1.8-latest.tar.gz"
     )(jdkVersion)
 
-    if (jdkUrl == null) throw new IllegalArgumentException("'" + jdkVersion + "' is not a valid JDK version")
+    if (jdkUrlString == null) throw new IllegalArgumentException("'" + jdkVersion + "' is not a valid JDK version")
 
-    new java.net.URL(jdkUrl)
+    jdkUrl = Some(new java.net.URL(jdkUrlString))
 
-    apply(baseDirectory, targetDir, new java.net.URL(jdkUrl), appName, configVars, procTypes, includePaths, log)
+    this
   }
 
-  def apply(baseDirectory: java.io.File, targetDir: java.io.File, jdkUrl: URL, appName: String, configVars: Map[String,String], procTypes: Map[String,String], includePaths: Seq[String], log: Logger): Unit = {
-    if (appName.isEmpty) throw new IllegalArgumentException("herokuAppName must be defined")
+  def withBaseDirectory(dir: File): DeployBuilder = { this.baseDirectory = Some(dir); this }
+  def withTargetDirectory(dir: File): DeployBuilder = { this.targetDir = Some(dir); this }
+  def withJdkUrl(url: URL): DeployBuilder = { this.jdkUrl = Some(url); this }
+  def withAppName(name: String): DeployBuilder = { this.appName = Some(name); this }
+  def withConfigVars(vars: Map[String,String]): DeployBuilder = { this.configVars = vars; this }
+  def withProcTypes(types: Map[String,String]): DeployBuilder = { this.procTypes = types; this }
+  def withIncludePaths(paths: Seq[String]): DeployBuilder = { this.includePaths = paths; this }
+  def withLogger(log: Logger): DeployBuilder = { this.logger = Some(log); this }
 
+  def deploy(): Unit = {
+    if (!this.appName.isDefined) throw new IllegalArgumentException("herokuAppName must be defined")
+    Deploy(
+      this.baseDirectory.get,
+      this.targetDir.get,
+      this.jdkUrl.get,
+      this.appName.get,
+      this.configVars,
+      this.procTypes,
+      this.includePaths,
+      this.logger.get
+    )
+  }
+}
+
+object Deploy {
+  def apply(baseDirectory: java.io.File, targetDir: java.io.File, jdkUrl: URL, appName: String, configVars: Map[String,String], procTypes: Map[String,String], includePaths: Seq[String], log: Logger) {
     log.info("---> Packaging application...")
     log.info("     - app: " + appName)
 

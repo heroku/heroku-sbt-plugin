@@ -17,27 +17,20 @@ object HerokuPlugin extends AutoPlugin {
 
     lazy val baseHerokuSettings: Seq[Def.Setting[_]] = Seq(
       deployHeroku := {
+        val builder = new DeployBuilder().
+          withBaseDirectory(baseDirectory.value).
+          withTargetDirectory(target.value).
+          withAppName((herokuAppName in deployHeroku).value).
+          withConfigVars((herokuConfigVars in deployHeroku).value).
+          withProcTypes((herokuProcessTypes in deployHeroku).value).
+          withIncludePaths((herokuIncludePaths in deployHeroku).value).
+          withLogger(streams.value.log)
         if ((herokuJdkUrl in deployHeroku).value.isEmpty) {
-          Deploy(
-            baseDirectory.value,
-            target.value,
-            (herokuJdkVersion in deployHeroku).value,
-            (herokuAppName in deployHeroku).value,
-            (herokuConfigVars in deployHeroku).value,
-            (herokuProcessTypes in deployHeroku).value,
-            (herokuIncludePaths in deployHeroku).value,
-            streams.value.log)
+          builder.withJdkVersion((herokuJdkVersion in deployHeroku).value)
         } else {
-          Deploy(
-            baseDirectory.value,
-            target.value,
-            new java.net.URL((herokuJdkUrl in deployHeroku).value),
-            (herokuAppName in deployHeroku).value,
-            (herokuConfigVars in deployHeroku).value,
-            (herokuProcessTypes in deployHeroku).value,
-            (herokuIncludePaths in deployHeroku).value,
-            streams.value.log)
+          builder.withJdkUrl(new java.net.URL((herokuJdkUrl in deployHeroku).value))
         }
+        builder.deploy()
       },
       herokuJdkVersion in Compile := "1.7",
       herokuAppName in Compile := "",
