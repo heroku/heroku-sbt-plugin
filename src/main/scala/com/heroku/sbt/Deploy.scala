@@ -1,7 +1,9 @@
 package com.heroku.sbt
 
-import java.io.{InputStreamReader, BufferedReader, FileInputStream, BufferedInputStream}
-import java.net.{URL, URLEncoder}
+import java.io.{FileInputStream, BufferedInputStream}
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Paths, Files}
 import javax.net.ssl.HttpsURLConnection
 
 import sbt._
@@ -30,6 +32,8 @@ object Deploy {
     if (appName.isEmpty) throw new IllegalArgumentException("herokuAppName must be defined")
 
     log.info("---> Packaging application...")
+    log.info("     - app: " + appName)
+
     val herokuDir = targetDir / "heroku"
     val appDir = herokuDir / "app"
     val appTargetDir = appDir / "target"
@@ -51,6 +55,8 @@ object Deploy {
           sbt.IO.copyFile(source, appDir / path)
         }
     }
+
+    addSlugExtras(appDir, jdkUrl)
 
     val slugJson = createSlugData(appData.getDefaultProcessTypes ++ procTypes)
     log.debug("Heroku Slug data: " + slugJson)
@@ -184,6 +190,20 @@ object Deploy {
     sbt.IO.download(jdkUrl, jdkTgz)
 
     Tar.extract(jdkTgz, jdkHome)
+  }
+
+  def addSlugExtras(appDir: File, jdkUrl: URL) {
+    if (jdkUrl.toString.contains("openjdk1.8-")) {
+      val profiled = appDir / ".profile.d"
+      val certsScript = profiled / "certs.sh"
+      sbt.IO.createDirectory(profiled)
+      Files.write(Paths.get(certsScript.getPath),
+        """
+          |rm -rf /app/.jdk/jre/lib/security/cacerts
+          |ln -s /etc/ssl/certs/java/cacerts /app/.jdk/jre/lib/security/cacerts
+        """.stripMargin('|').getBytes(StandardCharsets.UTF_8))
+      certsScript.setExecutable(true)
+    }
   }
 }
 
