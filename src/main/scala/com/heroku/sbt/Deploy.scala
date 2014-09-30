@@ -61,6 +61,20 @@ class DeployBuilder {
 
 object Deploy {
   def apply(baseDirectory: java.io.File, targetDir: java.io.File, jdkUrl: URL, appName: String, configVars: Map[String,String], procTypes: Map[String,String], includePaths: Seq[String], log: Logger) {
+    log.debug(
+      s"+--------------------+\n" +
+      s"| sbt-heroku details |\n" +
+      s"+--------------------+-----------------------------------------------\n" +
+      s"| baseDirectory -> $baseDirectory \n" +
+      s"| targetDir     -> $targetDir \n" +
+      s"| jdkUrl        -> $jdkUrl \n" +
+      s"| appName       -> $appName \n" +
+      s"| configVars    -> " + configVars.mkString(";") + "\n" +
+      s"| procTypes     -> " + procTypes.mkString(";") + "\n" +
+      s"| includePaths  -> " + includePaths.mkString(";") + "\n" +
+      s"+--------------------------------------------------------------------\n"
+    )
+
     log.info("---> Packaging application...")
     log.info("     - app: " + appName)
 
@@ -137,7 +151,7 @@ object Deploy {
     } finally {
       // move back because we had to move earlier to save file permissions
       appData.getIncludedFiles.foreach { case (originalLocation, newLocation) =>
-        log.debug("Heorku moving: " + newLocation.getPath + " -> " + originalLocation.getPath)
+        log.debug("Heroku moving: " + newLocation.getPath + " -> " + originalLocation.getPath)
         sbt.IO.move(newLocation, originalLocation)
       }
     }
