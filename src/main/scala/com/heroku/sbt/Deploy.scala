@@ -214,8 +214,12 @@ object Deploy {
     "{" +
       "\"buildpack_provided_description\":\"sbt-heroku\"," +
       "\"process_types\":{" + procTypes.foldLeft(""){
-      case (s, (k, v)) => (if (s.isEmpty) s else s + ", ") + "\"" + k + "\":\"" + v + "\""
+      case (s, (k, v)) => (if (s.isEmpty) s else s + ", ") + "\"" + k + "\":\"" + sanitizeJson(v) + "\""
     } + "}}"
+  }
+
+  def sanitizeJson(json: String): String = {
+    json.replace("\\", "\\\\").replace("\"", "\\\"")
   }
 
   def getApiKey: String = {

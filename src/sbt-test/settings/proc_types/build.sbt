@@ -20,7 +20,8 @@ herokuAppName in Compile := remoteAppName
 
 herokuProcessTypes in Compile := Map(
   "web" -> "target/universal/stage/bin/my-app -Dtest.var=monkeys -Dhttp.port=$PORT",
-  "worker" -> "java -version"
+  "worker" -> "java -version",
+  "quoted" -> "java \"-version\""
 )
 
 TaskKey[Unit]("createApp") <<= (packageBin in Universal, streams) map { (zipFile, streams) =>
