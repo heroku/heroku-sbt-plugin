@@ -60,7 +60,7 @@ class DeployBuilder {
 }
 
 object Deploy {
-  def apply(baseDirectory: java.io.File, targetDir: java.io.File, jdkUrl: URL, appName: String, configVars: Map[String,String], procTypes: Map[String,String], includePaths: Seq[String], log: Logger) {
+  def apply(baseDirectory: File, targetDir: File, jdkUrl: URL, appName: String, configVars: Map[String,String], procTypes: Map[String,String], includePaths: Seq[String], log: Logger) {
     log.debug(
       s"+--------------------+\n" +
       s"| sbt-heroku details |\n" +
@@ -100,7 +100,7 @@ object Deploy {
         }
     }
 
-    addSlugExtras(targetDir, appTargetDir)
+    addSlugExtras(targetDir, appDir, appTargetDir, jdkUrl)
 
     val slugJson = createSlugData(appData.getDefaultProcessTypes ++ procTypes)
     log.debug("Heroku Slug data: " + slugJson)
@@ -240,8 +240,23 @@ object Deploy {
     Tar.extract(jdkTgz, jdkHome)
   }
 
-  def addSlugExtras(targetDir: File, appTargetDir: File) {
+  def addSlugExtras(targetDir: File, appDir:File, appTargetDir: File, jdkUrl: URL) {
     sbt.IO.copyDirectory(targetDir / "resolution-cache" / "reports", appTargetDir / "resolution-cache" / "reports")
+
+    val jdkVersion = if (jdkUrl.toString.contains("openjdk1.8-")) {
+      "1.8"
+    } else if (jdkUrl.toString.contains("openjdk1.7-")) {
+      "1.7"
+    } else {
+      null
+    }
+
+    if (jdkVersion != null) {
+      Files.write(Paths.get((appDir / "system.properties").getPath),
+        s"""
+          |java.runtime.version=$jdkVersion
+        """.stripMargin('|').getBytes(StandardCharsets.UTF_8))
+    }
   }
 }
 
