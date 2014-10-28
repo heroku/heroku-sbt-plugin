@@ -100,7 +100,7 @@ object Deploy {
         }
     }
 
-    addSlugExtras(appDir, jdkUrl)
+    addSlugExtras(targetDir, appTargetDir)
 
     val slugJson = createSlugData(appData.getDefaultProcessTypes ++ procTypes)
     log.debug("Heroku Slug data: " + slugJson)
@@ -240,18 +240,8 @@ object Deploy {
     Tar.extract(jdkTgz, jdkHome)
   }
 
-  def addSlugExtras(appDir: File, jdkUrl: URL) {
-    if (jdkUrl.toString.contains("openjdk1.8-")) {
-      val profiled = appDir / ".profile.d"
-      val certsScript = profiled / "certs.sh"
-      sbt.IO.createDirectory(profiled)
-      Files.write(Paths.get(certsScript.getPath),
-        """
-          |rm -rf /app/.jdk/jre/lib/security/cacerts
-          |ln -s /etc/ssl/certs/java/cacerts /app/.jdk/jre/lib/security/cacerts
-        """.stripMargin('|').getBytes(StandardCharsets.UTF_8))
-      certsScript.setExecutable(true)
-    }
+  def addSlugExtras(targetDir: File, appTargetDir: File) {
+    sbt.IO.copyDirectory(targetDir / "resolution-cache" / "reports", appTargetDir / "resolution-cache" / "reports")
   }
 }
 
