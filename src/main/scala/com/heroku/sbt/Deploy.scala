@@ -115,7 +115,7 @@ object Deploy {
       log.debug("Heroku existing config variables: " + existingConfigVars)
 
       SetConfigVars(appName, encodedApiKey,
-        addConfigVar("PATH", ".jdk/bin:/usr/local/bin:/usr/bin:/bin", existingConfigVars) ++
+        addConfigVar("PATH", ".jdk/bin:/usr/local/bin:/usr/bin:/bin", existingConfigVars, force = true) ++
           addConfigVar("JAVA_OPTS", "-Xmx384m -Xss512k -XX:+UseCompressedOops", existingConfigVars) ++
           addConfigVar("SBT_OPTS", "-Xmx384m -Xss512k -XX:+UseCompressedOops", existingConfigVars) ++
           configVars)
@@ -167,8 +167,8 @@ object Deploy {
     }
   }
 
-  def addConfigVar(key: String, value: String, existingConfigVars: Map[String,String]): Map[String,String] = {
-    if (!existingConfigVars.contains(key) || !value.equals(existingConfigVars(key))) {
+  def addConfigVar(key: String, value: String, existingConfigVars: Map[String,String], force: Boolean = false): Map[String,String] = {
+    if (!existingConfigVars.contains(key) || (!value.equals(existingConfigVars(key)) && force)) {
       Map(key -> value)
     } else {
       Map()
@@ -288,6 +288,7 @@ object GetConfigVars {
 object SetConfigVars {
   def apply(appName: String, encodedApiKey: String, config: Map[String,String]): Unit = {
     if (config.nonEmpty) {
+
       val urlStr = "https://api.heroku.com/apps/" + URLEncoder.encode(appName, "UTF-8") + "/config_vars"
 
       val data = "{" + config.map { case (k, v) => "\"" + k + "\":\"" + v + "\""}.mkString(",") + "}"
