@@ -112,7 +112,7 @@ object Deploy {
       log.info("     - size: " + (slugFile.length / (1024 * 1024))  + "MB")
 
       val existingConfigVars = GetConfigVars(appName, encodedApiKey)
-      log.debug("Heroku existing config variables: " + existingConfigVars)
+      log.debug("Heroku existing config variables: " + existingConfigVars.keys)
 
       SetConfigVars(appName, encodedApiKey,
         addConfigVar("PATH", ".jdk/bin:/usr/local/bin:/usr/bin:/bin", existingConfigVars, force = true) ++
