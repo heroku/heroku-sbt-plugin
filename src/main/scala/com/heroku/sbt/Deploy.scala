@@ -247,8 +247,8 @@ object Deploy {
       "1.8"
     } else if (jdkUrl.toString.contains("openjdk1.7-")) {
       "1.7"
-    } else {
-      null
+    } else if (jdkUrl.toString.contains("openjdk1.6-")) {
+      "1.6"
     }
 
     if (jdkVersion != null) {
