@@ -18,9 +18,16 @@ herokuJdkVersion in Compile := "1.8"
 
 herokuAppName in Compile := remoteAppName
 
+mainClass in Compile := Some("com.example.Server")
+
+herokuProcessTypes in Compile := Map(
+  "web" -> "target/universal/stage/bin/scala-getting-started -Dtest.var=monkeys -Dhttp.port=$PORT",
+  "https" -> "target/universal/stage/bin/scala-getting-started -main com.example.Https"
+)
+
 TaskKey[Unit]("createApp") <<= (packageBin in Universal, streams) map { (zipFile, streams) =>
   Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.log
-  Process("heroku", Seq("create", "-n", remoteAppName)) ! streams.log
+  Process("heroku", Seq("create", "-s", "cedar-14", "-n", remoteAppName)) ! streams.log
 }
 
 TaskKey[Unit]("cleanup") <<= (packageBin in Universal, streams) map { (zipFile, streams) =>
@@ -49,5 +56,15 @@ TaskKey[Unit]("check") <<= (packageBin in Universal, streams) map { (zipFile, st
         }
     }
     ()
+  }
+}
+
+TaskKey[Unit]("https") <<= (packageBin in Universal, streams) map { (zipFile, streams) =>
+  val output = Process("heroku", Seq("run", "https", "-a", remoteAppName)).!!
+  if (!output.contains("Successfully invoked HTTPS service.")) {
+    sys.error("Failed to invoke HTTPS service: " + output)
+  }
+  if (!output.contains(""""X-Forwarded-Proto": "https"""")) {
+    sys.error("Invoked service without HTTPS: " + output)
   }
 }

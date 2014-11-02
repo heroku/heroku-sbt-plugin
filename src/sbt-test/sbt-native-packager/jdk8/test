@@ -11,4 +11,5 @@ $ exists target/heroku/jdk-pkg.tar.gz
 $ exists target/heroku/slug.tgz
 $ exists target/heroku/diagnostics.log
 > check
+> https
 > cleanup
