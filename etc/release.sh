@@ -9,7 +9,7 @@ set -eu
 
 CUR_VERSION="$(grep "git.baseVersion :=" "version.sbt" | sed -E -e 's/git.baseVersion := //g' | sed 's/"//g')"
 
-#sbt "release v${CUR_VERSION}"
+sbt "release v${CUR_VERSION}"
 
 MAJOR=0
 MINOR=0
