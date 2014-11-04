@@ -113,3 +113,10 @@ In order to run the test suite, you must have the [Heroku Toolbelt](https://tool
 ```
 $ sbt scripted
 ```
+
+To run an individual test, use a command like this:
+
+```
+$ sbt "scripted settings/config_vars"
+```
+
