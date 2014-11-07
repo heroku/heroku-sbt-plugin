@@ -10,9 +10,6 @@ scalaVersion in Global := "2.10.4"
 
 scalacOptions in Compile += "-deprecation"
 
-//resolvers += "heroku-sdk-releases" at "https://dl.bintray.com/heroku/maven"
-//resolvers += "heroku-sdk-releases" at "file:///Users/jkutner/.m2/repository"
-
 libraryDependencies ++= Seq(
   "com.heroku.sdk" % "heroku-deploy" % "0.1.0-SNAPSHOT"
 )
