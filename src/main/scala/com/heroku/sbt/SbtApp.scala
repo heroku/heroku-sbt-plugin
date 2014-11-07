@@ -17,8 +17,6 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
   case class Universal(dir:File) extends PackageType
   case class StartScript(dir:File) extends PackageType
 
-  private val movedFiles:Map[File, File] = Map[File, File]()
-
   override def logDebug(message:String) {
     log.debug(message)
   }
@@ -69,32 +67,21 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
           throw new CompileFailed(Array(), "Check that HEROKU_API_KEY is set correctly, or if the Heroku Toolbelt is installed.", Array())
         }
         throw ce
-    } finally {
-      // move back because we had to move earlier to save file permissions
-      movedFiles.foreach { case (originalLocation, newLocation) =>
-        log.debug("Heroku moving: " + newLocation.getPath + " -> " + originalLocation.getPath)
-        sbt.IO.move(newLocation, originalLocation)
-      }
     }
   }
 
   override def prepare(includedFiles:java.util.List[java.io.File], jdkVersion:String, jdkUrl:URL): Unit = {
-    super.prepare(includedFiles, jdkVersion, jdkUrl)
-
-    packageType match {
+    val defaultIncludedFiles = packageType match {
       case Universal(dir) =>
-        movedFiles ++ Map[File,File](dir -> getAppDir / "target" / "universal" / "stage")
-      case StartScript(n) =>
-        movedFiles ++ Map[File,File](
-          targetDir / "start" -> getAppDir / "target" / "start",
-          targetDir / "staged" -> getAppDir / "target" / "staged")
+        Seq(dir)
+      case StartScript(dir) =>
+        Seq(dir, targetDir / "staged")
     }
 
-    // move because copy won't keep file permissions. we'll put it back later
-    movedFiles.foreach { case (originalLocation, newLocation) =>
-      logInfo(" - including: ./" + sbt.IO.relativize(targetDir.getParentFile, originalLocation).get)
-      sbt.IO.move(originalLocation, newLocation)
-    }
+    // OMG
+    val javaIncludedFiles = JavaConversions.seqAsJavaList(defaultIncludedFiles ++ JavaConversions.collectionAsScalaIterable(includedFiles))
+
+    super.prepare(includedFiles, jdkVersion, jdkUrl)
 
     addSlugExtras(jdkVersion, jdkUrl)
   }
