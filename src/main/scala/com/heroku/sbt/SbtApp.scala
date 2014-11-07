@@ -81,7 +81,7 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
     // OMG
     val javaIncludedFiles = JavaConversions.seqAsJavaList(defaultIncludedFiles ++ JavaConversions.collectionAsScalaIterable(includedFiles))
 
-    super.prepare(includedFiles, jdkVersion, jdkUrl)
+    super.prepare(javaIncludedFiles, jdkVersion, jdkUrl)
 
     addSlugExtras(jdkVersion, jdkUrl)
   }
