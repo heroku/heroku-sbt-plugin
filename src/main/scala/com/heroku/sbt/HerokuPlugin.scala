@@ -3,6 +3,8 @@ package com.heroku.sbt
 import sbt.Keys._
 import sbt._
 
+import scala.collection.JavaConversions
+
 object HerokuPlugin extends AutoPlugin {
 
   object autoImport {
@@ -17,20 +19,17 @@ object HerokuPlugin extends AutoPlugin {
 
     lazy val baseHerokuSettings: Seq[Def.Setting[_]] = Seq(
       deployHeroku := {
-        val builder = new DeployBuilder().
-          withBaseDirectory(baseDirectory.value).
-          withTargetDirectory(target.value).
-          withAppName((herokuAppName in deployHeroku).value).
-          withConfigVars((herokuConfigVars in deployHeroku).value).
-          withProcTypes((herokuProcessTypes in deployHeroku).value).
-          withIncludePaths((herokuIncludePaths in deployHeroku).value).
-          withLogger(streams.value.log)
-        if ((herokuJdkUrl in deployHeroku).value.isEmpty) {
-          builder.withJdkVersion((herokuJdkVersion in deployHeroku).value)
-        } else {
-          builder.withJdkUrl(new java.net.URL((herokuJdkUrl in deployHeroku).value))
-        }
-        builder.deploy()
+        if ((herokuAppName in deployHeroku).value == null) throw new IllegalArgumentException("herokuAppName must be defined")
+        val includedFiles = JavaConversions.seqAsJavaList((herokuIncludePaths in deployHeroku).value.map {
+          case path:String => new java.io.File(path)
+        })
+        val configVars = JavaConversions.mapAsJavaMap((herokuConfigVars in deployHeroku).value)
+        val processTypes = JavaConversions.mapAsJavaMap((herokuProcessTypes in deployHeroku).value)
+        val jdkUrlOrVersion =
+          if ((herokuJdkUrl in deployHeroku).value.isEmpty) (herokuJdkVersion in deployHeroku).value
+          else (herokuJdkUrl in deployHeroku).value
+        new SbtApp("sbt-heroku", (herokuAppName in deployHeroku).value, baseDirectory.value, target.value, streams.value.log).
+          deploy(includedFiles, configVars, jdkUrlOrVersion, processTypes)
       },
       herokuJdkVersion in Compile := "1.7",
       herokuAppName in Compile := "",

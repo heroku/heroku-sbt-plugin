@@ -10,9 +10,11 @@ scalaVersion in Global := "2.10.4"
 
 scalacOptions in Compile += "-deprecation"
 
+//resolvers += "heroku-sdk-releases" at "https://dl.bintray.com/heroku/maven"
+//resolvers += "heroku-sdk-releases" at "file:///Users/jkutner/.m2/repository"
+
 libraryDependencies ++= Seq(
-  "org.apache.commons" % "commons-compress" % "1.8.1",
-  "com.github.pathikrit" %% "dijon" % "0.2.4"
+  "com.heroku.sdk" % "heroku-deploy" % "0.1.0-SNAPSHOT"
 )
 
 scriptedSettings
