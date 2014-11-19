@@ -7,3 +7,5 @@ env:
 install: "./etc/travis-setup.sh"
 
 script: sbt scripted
+
+after_script: heroku keys:remove $USER@`hostname`
