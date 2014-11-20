@@ -27,7 +27,7 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
     log.warn(message)
   }
 
-  override def deploy(includedFiles:java.util.List[java.io.File], configVars:java.util.Map[String,String], jdkVersion:String, jdkUrl:URL, processTypes:java.util.Map[String,String]) {
+  override def deploy(includedFiles:java.util.List[java.io.File], configVars:java.util.Map[String,String], jdkVersion:String, jdkUrl:URL, stack:String, processTypes:java.util.Map[String,String]) {
     logDebug(
       s"+--------------------+\n" +
         s"| sbt-heroku details |\n" +
@@ -37,6 +37,7 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
         s"| jdkVersion    -> $jdkVersion \n" +
         s"| jdkUrl        -> $jdkUrl \n" +
         s"| appName       -> $name \n" +
+        s"| stack         -> $stack \n" +
         s"| includePaths  -> " + JavaConversions.collectionAsScalaIterable(includedFiles).mkString(";") + "\n" +
         s"+--------------------------------------------------------------------\n"
     )
@@ -56,7 +57,7 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
     val javaProcessTypes = JavaConversions.mapAsJavaMap(defaultProcessTypes ++ JavaConversions.mapAsScalaMap(processTypes))
 
     try {
-      super.deploy(includedFiles, configVars, jdkVersion, jdkUrl, javaProcessTypes)
+      super.deploy(includedFiles, configVars, jdkVersion, jdkUrl, stack, javaProcessTypes)
     } catch {
       case ce: Curl.CurlException =>
         if (ce.getCode == 404) {

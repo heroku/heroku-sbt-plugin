@@ -76,12 +76,18 @@ herokuProcessTypes in Compile := Map(
 )
 ```
 
-And you can include additional directories in the slug (they must be relative to the project root):
+You can include additional directories in the slug (they must be relative to the project root):
 
 ```
 herokuIncludePaths in Compile := Seq(
   "app", "conf/routes", "public/javascripts"
 )
+```
+
+You can also set the [Heroku runtime stack](https://devcenter.heroku.com/articles/cedar):
+
+```
+herokuStack in Compile := "cedar-14"
 ```
 
 See the `src/sbt-test` directory for examples.

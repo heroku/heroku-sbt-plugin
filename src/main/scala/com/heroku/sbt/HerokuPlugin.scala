@@ -16,6 +16,7 @@ object HerokuPlugin extends AutoPlugin {
     val herokuJdkUrl = settingKey[String]("The location of the JDK binary.")
     val herokuProcessTypes = settingKey[Map[String,String]]("The process types to run on Heroku (similar to Procfile).")
     val herokuIncludePaths = settingKey[Seq[String]]("A list of directory paths to include in the slug.")
+    val herokuStack = settingKey[String]("The Heroku runtime stack.")
 
     lazy val baseHerokuSettings: Seq[Def.Setting[_]] = Seq(
       deployHeroku := {
@@ -28,14 +29,16 @@ object HerokuPlugin extends AutoPlugin {
         val jdkUrlOrVersion =
           if ((herokuJdkUrl in deployHeroku).value.isEmpty) (herokuJdkVersion in deployHeroku).value
           else (herokuJdkUrl in deployHeroku).value
+        val stack = (herokuStack in deployHeroku).value
         new SbtApp("sbt-heroku", (herokuAppName in deployHeroku).value, baseDirectory.value, target.value, streams.value.log).
-          deploy(includedFiles, configVars, jdkUrlOrVersion, processTypes)
+          deploy(includedFiles, configVars, jdkUrlOrVersion, stack, processTypes)
       },
       herokuJdkVersion in Compile := "1.7",
       herokuAppName in Compile := "",
       herokuConfigVars in Compile := Map[String,String](),
       herokuProcessTypes in Compile := Map[String,String](),
       herokuJdkUrl in Compile := "",
+      herokuStack in Compile := "cedar-14",
       herokuIncludePaths in Compile := Seq()
     )
   }
