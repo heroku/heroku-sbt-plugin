@@ -18,6 +18,8 @@ herokuJdkVersion in Compile := "1.7"
 
 herokuAppName in Compile := remoteAppName
 
+herokuStack in Compile := "cedar-14"
+
 herokuConfigVars in Compile := Map(
   "MY_VAR" -> "monkeys with a y",
   "JAVA_OPTS" -> "-Xmx384m -Xss512k -DmyVar=monkeys"
@@ -42,5 +44,9 @@ TaskKey[Unit]("check") <<= (packageBin in Universal, streams) map { (zipFile, st
   }
   if (!(config.contains("PATH") && config.contains(".jdk/bin:/usr/local/bin:/usr/bin:/bin"))) {
     sys.error("Default config variable was not retained!")
+  }
+  val info = Process("heroku", Seq("apps:info", "-a", remoteAppName)).!!
+  if (!info.contains("cedar-14")) {
+    sys.error("Custom config variable was not set!")
   }
 }
