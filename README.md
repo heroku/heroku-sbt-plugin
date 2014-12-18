@@ -12,7 +12,7 @@ Add the following to your `project/plugins.sbt` file:
 resolvers += Resolver.url("heroku-sbt-plugin-releases",
   url("https://dl.bintray.com/heroku/sbt-plugins/"))(Resolver.ivyStylePatterns)
 
-addSbtPlugin("com.heroku" % "sbt-heroku" % "0.2.2")
+addSbtPlugin("com.heroku" % "sbt-heroku" % "0.3.0")
 ```
 
 If you're not using Play, then you'll also need to add the
@@ -42,7 +42,7 @@ And replace "xxx-xxx-xxxx" with the value of your Heroku API token.
 
 +  It is required that you use sbt 0.13.5 or greater.
 
-+  If using Java 1.6 you must have a `tar` command available on your system.
++  You must use Java 1.7 or higher locally.
 
 +  This plugin has not been tested with Play 2.0 or 2.1.
 
@@ -51,7 +51,7 @@ And replace "xxx-xxx-xxxx" with the value of your Heroku API token.
 You may set the desired JDK version like so:
 
 ```
-herokuJdkVersion in Compile := "1.7"
+herokuJdkVersion in Compile := "1.8"
 ```
 
 Valid values are `1.6`, `1.7`, and `1.8`. The default is `1.8`
