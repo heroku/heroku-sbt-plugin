@@ -126,3 +126,17 @@ To run an individual test, use a command like this:
 $ sbt "scripted settings/config_vars"
 ```
 
+The heavy lifting for this plugin is done by the `heroku-deploy` library. The source code for that project can be found
+in the [heroku-maven-plugin repository](https://github.com/heroku/heroku-maven-plugin/tree/master/heroku-deploy). If you
+need to update that library, do this:
+
+```
+$ git clone https://github.com/heroku/heroku-maven-plugin
+$ cd heroku-maven-plugin/heroku-deploy
+# make your changes
+$ mvn clean install
+```
+
+Then update the `heroku-deploy` dependency version in the sbt-heroku `build.sbt` to 0.3.1-SNAPSHOT (or whatever
+version is specified in the heroku-deploy `pom.xml`). The next time you run the `scripted` tests it will pick up the
+snapshot version from your local Maven repository. 
