@@ -45,8 +45,8 @@ TaskKey[Unit]("check") <<= (packageBin in Universal, streams) map { (zipFile, st
   if (!(config.contains("PATH") && config.contains(".jdk/bin:/usr/local/bin:/usr/bin:/bin"))) {
     sys.error("Default config variable was not retained!")
   }
-  val info = Process("heroku", Seq("apps:info", "-a", remoteAppName)).!!
-  if (!info.contains("cedar-14")) {
+  val info = Process("heroku", Seq("stack", "-a", remoteAppName)).!!
+  if (!info.contains("* cedar-14")) {
     sys.error("Custom config variable was not set!")
   }
 }
