@@ -1,5 +1,7 @@
 ## Master
 
+## 0.3.0
+
 *  Upgrading heroku-deploy dep to 0.3.0
 
 ## 0.2.2
