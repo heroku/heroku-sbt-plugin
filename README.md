@@ -8,7 +8,7 @@ This is can be useful when deploying from a CI server.
 
 Add the following to your `project/plugins.sbt` file:
 
-```
+```scala
 resolvers += Resolver.url("heroku-sbt-plugin-releases",
   url("https://dl.bintray.com/heroku/sbt-plugins/"))(Resolver.ivyStylePatterns)
 
@@ -20,19 +20,19 @@ If you're not using Play, then you'll also need to add the
 
 Next, add something like this to your `build.sbt`
 
-```
+```scala
 herokuAppName in Compile := "your-heroku-app-name"
 ```
 
 Now, if you have the [Heroku Toolbelt](https://toolbelt.heroku.com/) installed, run:
 
-```
+```sh-session
 $ sbt stage deployHeroku
 ```
 
 If you do not have the toolbelt installed, then run:
 
-```
+```sh-session
 $ HEROKU_API_KEY="xxx-xxx-xxxx" sbt stage deployHeroku
 ```
 
@@ -50,7 +50,7 @@ And replace "xxx-xxx-xxxx" with the value of your Heroku API token.
 
 You may set the desired JDK version like so:
 
-```
+```scala
 herokuJdkVersion in Compile := "1.8"
 ```
 
@@ -58,7 +58,7 @@ Valid values are `1.6`, `1.7`, and `1.8`. The default is `1.8`
 
 You can set configuration variables like so:
 
-```
+```scala
 herokuConfigVars in Compile := Map(
   "MY_VAR" -> "some value",
   "JAVA_OPTS" -> "-Xmx384m -Xss512k -XX:+UseCompressedOops"
@@ -69,7 +69,7 @@ Any variable defined in `herokuConfigVars` will override defaults.
 
 You may set process types (similar to a `Procfile`) with `herokuProcessTypes`:
 
-```
+```scala
 herokuProcessTypes in Compile := Map(
   "web" -> "target/universal/stage/bin/my-app -Dhttp.port=$PORT",
   "worker" -> "java -jar target/universal/stage/lib/my-worker.jar"
@@ -78,7 +78,7 @@ herokuProcessTypes in Compile := Map(
 
 You can include additional directories in the slug (they must be relative to the project root):
 
-```
+```scala
 herokuIncludePaths in Compile := Seq(
   "app", "conf/routes", "public/javascripts"
 )
@@ -86,7 +86,7 @@ herokuIncludePaths in Compile := Seq(
 
 You can also set the [Heroku runtime stack](https://devcenter.heroku.com/articles/cedar):
 
-```
+```scala
 herokuStack in Compile := "cedar-14"
 ```
 
@@ -98,7 +98,7 @@ To deploy to multiple Heroku app environments, you can use either system propert
 native sbt/Java configuration method.  For example, you might define your `appName` as a Map and choose a value with
 the system property as a key.
 
-```
+```scala
 herokuAppName in Compile := Map(
   "test" -> "your-heroku-app-test",
   "stg"  -> "your-heroku-app-stage",
@@ -108,7 +108,7 @@ herokuAppName in Compile := Map(
 
 Then run the sbt command like so:
 
-```
+```sh-session
 $ sbt -DappEnv=test stage deployHeroku
 ```
 
@@ -116,13 +116,13 @@ $ sbt -DappEnv=test stage deployHeroku
 
 In order to run the test suite, you must have the [Heroku Toolbelt](https://toolbelt.heroku.com/) installed. Then run:
 
-```
+```sh-session
 $ sbt scripted
 ```
 
 To run an individual test, use a command like this:
 
-```
+```sh-session
 $ sbt "scripted settings/config_vars"
 ```
 
@@ -130,7 +130,7 @@ The heavy lifting for this plugin is done by the `heroku-deploy` library. The so
 in the [heroku-maven-plugin repository](https://github.com/heroku/heroku-maven-plugin/tree/master/heroku-deploy). If you
 need to update that library, do this:
 
-```
+```sh-session
 $ git clone https://github.com/heroku/heroku-maven-plugin
 $ cd heroku-maven-plugin/heroku-deploy
 # make your changes
