@@ -7,8 +7,8 @@ $ exists target/heroku/app/
 $ exists target/heroku/app/.jdk/bin/java
 $ exists target/heroku/app/system.properties
 $ exists target/heroku/app/target/resolution-cache/reports
-$ exists target/heroku/jdk-pkg.tar.gz
 $ exists target/heroku/slug.tgz
+-$ exists target/heroku/app/target/heroku/slug.tgz
 $ exists target/heroku/diagnostics.log
 > check
 > https

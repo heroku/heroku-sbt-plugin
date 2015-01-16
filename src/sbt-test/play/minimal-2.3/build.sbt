@@ -17,7 +17,7 @@ libraryDependencies ++= Seq(
 
 lazy val remoteAppName = "sbt-heroku-" + sys.props("heroku.uuid")
 
-herokuJdkVersion in Compile := "1.7"
+herokuJdkVersion in Compile := "1.8"
 
 herokuAppName in Compile := remoteAppName
 
