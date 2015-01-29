@@ -33,7 +33,7 @@ object HerokuPlugin extends AutoPlugin {
         new SbtApp("sbt-heroku", (herokuAppName in deployHeroku).value, baseDirectory.value, target.value, streams.value.log).
           deploy(includedFiles, configVars, jdkUrlOrVersion, stack, processTypes, "slug.tgz")
       },
-      herokuJdkVersion in Compile := "1.7",
+      herokuJdkVersion in Compile := "1.8",
       herokuAppName in Compile := "",
       herokuConfigVars in Compile := Map[String,String](),
       herokuProcessTypes in Compile := Map[String,String](),
