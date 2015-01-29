@@ -48,7 +48,10 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
           filter(!_.getName.endsWith(".bat")).
           filter(!_.getName.equals("bin")).
           get(0).getName
-        Map[String,String]("web" -> ("target/universal/stage/bin/" + startScript + " -Dhttp.port=$PORT"))
+        Map[String,String](
+          "web" -> ("target/universal/stage/bin/" + startScript + " -Dhttp.port=$PORT"),
+          "console" -> ("target/universal/stage/bin/" + startScript + " -main scala.tools.nsc.MainGenericRunner -usejavacp")
+        )
       case StartScript(dir) =>
         Map[String,String]("web" -> "target/start -Dhttp.port=$PORT $JAVA_OPTS")
     }
