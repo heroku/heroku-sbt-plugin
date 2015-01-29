@@ -64,7 +64,7 @@ TaskKey[Unit]("https") <<= (packageBin in Universal, streams) map { (zipFile, st
   if (!output.contains("Successfully invoked HTTPS service.")) {
     sys.error("Failed to invoke HTTPS service: " + output)
   }
-  if (!output.contains(""""X-Forwarded-Proto": "https"""")) {
+  if (!(output.contains(""""X-Forwarded-Proto": "https"""") || output.contains(""""X-Forwarded-Protocol": "https""""))) {
     sys.error("Invoked service without HTTPS: " + output)
   }
 }
