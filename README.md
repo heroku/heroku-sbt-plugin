@@ -12,7 +12,7 @@ Add the following to your `project/plugins.sbt` file:
 resolvers += Resolver.url("heroku-sbt-plugin-releases",
   url("https://dl.bintray.com/heroku/sbt-plugins/"))(Resolver.ivyStylePatterns)
 
-addSbtPlugin("com.heroku" % "sbt-heroku" % "0.3.0")
+addSbtPlugin("com.heroku" % "sbt-heroku" % "0.3.2")
 ```
 
 If you're not using Play, then you'll also need to add the
@@ -163,6 +163,6 @@ $ cd heroku-maven-plugin/heroku-deploy
 $ mvn clean install
 ```
 
-Then update the `heroku-deploy` dependency version in the sbt-heroku `build.sbt` to 0.3.1-SNAPSHOT (or whatever
+Then update the `heroku-deploy` dependency version in the sbt-heroku `build.sbt` to 0.3.3-SNAPSHOT (or whatever
 version is specified in the heroku-deploy `pom.xml`). The next time you run the `scripted` tests it will pick up the
 snapshot version from your local Maven repository. 
