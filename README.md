@@ -16,7 +16,7 @@ addSbtPlugin("com.heroku" % "sbt-heroku" % "0.3.0")
 ```
 
 If you're not using Play, then you'll also need to add the
-[sbt-native-packager plugin](https://github.com/sbt/sbt-native-packager).
+[sbt-native-packager plugin](https://github.com/sbt/sbt-native-packager), which creates a `stage` task.
 
 Next, add something like this to your `build.sbt`
 
@@ -91,6 +91,32 @@ herokuStack in Compile := "cedar-14"
 ```
 
 See the `src/sbt-test` directory for examples.
+
+## Running a Remote Console
+
+When using `sbt-native-packager` version 0.7.6 or greater, sbt-heroku will create a 
+`console` process type for you. This command can be run like so:
+
+```sh-session
+$ heroku run console -a <appname>
+Running `console` attached to terminal... up, run.5154
+Picked up JAVA_TOOL_OPTIONS: -Xmx384m  -Djava.rmi.server.useCodebaseOnly=true
+Failed to created JLineReader: java.lang.NoClassDefFoundError: scala/tools/jline/console/completer/Completer
+Falling back to SimpleReader.
+Welcome to Scala version 2.10.4 (OpenJDK 64-Bit Server VM, Java 1.8.0_20).
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala> 
+```
+
+If you are using Play 2.x, then you will need to upgrade `sbt-native-packager` manually 
+(because Play uses version `0.7.4` by default). 
+You can do this by adding the following line of code to your `project/plugins.sbt`:
+
+```
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.7.6")
+```
 
 ## Deploying to Multiple Environments
 
