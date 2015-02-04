@@ -14,7 +14,7 @@ libraryDependencies ++= Seq(
 
 lazy val remoteAppName = "sbt-heroku-" + sys.props("heroku.uuid")
 
-herokuJdkVersion in Compile := "1.7"
+herokuJdkVersion in Compile := "1.8"
 
 herokuAppName in Compile := remoteAppName
 
@@ -35,7 +35,7 @@ TaskKey[Unit]("cleanup") <<= (packageBin in Universal, streams) map { (zipFile, 
 
 TaskKey[Unit]("runWorker") <<= (packageBin in Universal, streams) map { (zipFile, streams) =>
   val output = Process("heroku", Seq("run", "worker", "-a", remoteAppName)).!!
-  if (!output.contains("java version \"1.7.0_55\"")) {
+  if (!output.contains("1.8.0")) {
     sys.error("Plugin should include custom process definitions")
   }
 }
