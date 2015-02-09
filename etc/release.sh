@@ -22,3 +22,12 @@ NEW_VERSION="${MAJOR}.${MINOR}.$(($PATCH + 1))"
 
 sed -e s/${CUR_VERSION}/${NEW_VERSION}/g version.sbt > version.sbt.tmp
 mv version.sbt.tmp version.sbt
+
+echo "Now make sure you update these articles and projects:
+
+    https://devcenter.heroku.com/articles/deploying-scala-and-play-applications-with-the-heroku-sbt-plugin
+    https://devcenter.heroku.com/articles/deploy-scala-and-play-applications-to-heroku-from-jenkins-ci
+    https://devcenter.heroku.com/articles/deploy-scala-and-play-applications-to-heroku-from-travis-ci
+    https://github.com/jkutner/heroku-jenkins-scala-example
+    https://github.com/jkutner/travis-heroku-scala-example
+"
