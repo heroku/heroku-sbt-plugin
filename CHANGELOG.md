@@ -1,5 +1,8 @@
 ## Master
 
+## 0.3.3
+
+*  Upgrading heroku-deploy dep to 0.3.3
 *  Upgraded default JDK to 1.8
 
 ## 0.3.1
