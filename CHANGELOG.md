@@ -2,6 +2,7 @@
 
 ## 0.3.3
 
+* Added `herokuSkipSubProjects` setting, which defaults to true
 *  Upgrading heroku-deploy dep to 0.3.3
 *  Upgraded default JDK to 1.8
 

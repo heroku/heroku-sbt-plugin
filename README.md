@@ -90,6 +90,14 @@ You can also set the [Heroku runtime stack](https://devcenter.heroku.com/article
 herokuStack in Compile := "cedar-14"
 ```
 
+You can run the plugin against all sub-projects (in addition to the root project) by setting the following option:
+
+```scala
+herokuSkipSubProjects in Compile := false
+```
+
+This defaults to `true` (and currently it only runs against all sub-projects or none).
+
 See the `src/sbt-test` directory for examples.
 
 ## Running a Remote Console

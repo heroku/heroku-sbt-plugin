@@ -17,21 +17,26 @@ object HerokuPlugin extends AutoPlugin {
     val herokuProcessTypes = settingKey[Map[String,String]]("The process types to run on Heroku (similar to Procfile).")
     val herokuIncludePaths = settingKey[Seq[String]]("A list of directory paths to include in the slug.")
     val herokuStack = settingKey[String]("The Heroku runtime stack.")
+    val herokuSkipSubProjects = settingKey[Boolean]("Instructs the plugin to skip sub-projects if true (default is true).")
 
     lazy val baseHerokuSettings: Seq[Def.Setting[_]] = Seq(
       deployHeroku := {
-        if ((herokuAppName in deployHeroku).value == null) throw new IllegalArgumentException("herokuAppName must be defined")
-        val includedFiles = JavaConversions.seqAsJavaList((herokuIncludePaths in deployHeroku).value.map {
-          case path:String => new java.io.File(path)
-        })
-        val configVars = JavaConversions.mapAsJavaMap((herokuConfigVars in deployHeroku).value)
-        val processTypes = JavaConversions.mapAsJavaMap((herokuProcessTypes in deployHeroku).value)
-        val jdkUrlOrVersion =
-          if ((herokuJdkUrl in deployHeroku).value.isEmpty) (herokuJdkVersion in deployHeroku).value
-          else (herokuJdkUrl in deployHeroku).value
-        val stack = (herokuStack in deployHeroku).value
-        new SbtApp("sbt-heroku", (herokuAppName in deployHeroku).value, baseDirectory.value, target.value, streams.value.log).
-          deploy(includedFiles, configVars, jdkUrlOrVersion, stack, processTypes, "slug.tgz")
+        // TODO this should be able to detect sub-projects in a standard way, and filter sub-projects so that
+        // some could be built and some could be skipped
+        if ((baseDirectory.value / "project").exists || !(herokuSkipSubProjects in deployHeroku).value) {
+          if ((herokuAppName in deployHeroku).value == null) throw new IllegalArgumentException("herokuAppName must be defined")
+          val includedFiles = JavaConversions.seqAsJavaList((herokuIncludePaths in deployHeroku).value.map {
+            case path: String => new java.io.File(path)
+          })
+          val configVars = JavaConversions.mapAsJavaMap((herokuConfigVars in deployHeroku).value)
+          val processTypes = JavaConversions.mapAsJavaMap((herokuProcessTypes in deployHeroku).value)
+          val jdkUrlOrVersion =
+            if ((herokuJdkUrl in deployHeroku).value.isEmpty) (herokuJdkVersion in deployHeroku).value
+            else (herokuJdkUrl in deployHeroku).value
+          val stack = (herokuStack in deployHeroku).value
+          new SbtApp("sbt-heroku", (herokuAppName in deployHeroku).value, baseDirectory.value, target.value, streams.value.log).
+            deploy(includedFiles, configVars, jdkUrlOrVersion, stack, processTypes, "slug.tgz")
+        }
       },
       herokuJdkVersion in Compile := "1.8",
       herokuAppName in Compile := "",
@@ -39,7 +44,8 @@ object HerokuPlugin extends AutoPlugin {
       herokuProcessTypes in Compile := Map[String,String](),
       herokuJdkUrl in Compile := "",
       herokuStack in Compile := "cedar-14",
-      herokuIncludePaths in Compile := Seq()
+      herokuIncludePaths in Compile := Seq(),
+      herokuSkipSubProjects in Compile := true
     )
   }
 
