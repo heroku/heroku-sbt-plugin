@@ -120,8 +120,7 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.7.6")
 
 ## Deploying to Multiple Environments
 
-To deploy to multiple Heroku app environments, you can use either system properties, environment variables, or any other
-native sbt/Java configuration method.  For example, you might define your `appName` as a Map and choose a value with
+To deploy to multiple Heroku app environments, you can use either system properties, environment variables, or any other native sbt/Java configuration method.  For example, you might define your `appName` as a Map and choose a value with
 the system property as a key.
 
 ```scala
@@ -136,6 +135,34 @@ Then run the sbt command like so:
 
 ```sh-session
 $ sbt -DappEnv=test stage deployHeroku
+```
+
+### Deploying from Git Branches
+
+Another option when using multiple environments is to deploy from a Git branch that corresponds to the environment. This is particularly useful if you are using [git-flow](https://github.com/nvie/gitflow) or a similar process. 
+
+First, add the sbt-git plugin ot your `project/plugins.sbt` like this:
+
+```scala
+resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
+
+addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.6.4")
+```
+
+Then in your `build.sbt` you can configure the sbt-heroku plugin to deploy to the environment that corresponds to the current Git branch like this:
+
+```scala
+import com.typesafe.sbt.SbtGit._
+
+// ...
+
+herokuAppName in Compile := Map(
+  "testing"    -> "myapp-testing",
+  "staging"    -> "myapp-staging",
+  "production" -> "myapp"
+).getOrElse(git.gitCurrentBranch.value, "myapp-dev")
+
+showCurrentGitBranch
 ```
 
 ## Hacking
