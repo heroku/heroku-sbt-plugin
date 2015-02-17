@@ -42,23 +42,26 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
         s"+--------------------------------------------------------------------\n"
     )
 
-    val defaultProcessTypes = packageType match {
-      case Universal(dir) =>
-        val startScript = (dir / "bin" ** "*").
-          filter(!_.getName.endsWith(".bat")).
-          filter(!_.getName.equals("bin")).
-          get(0).getName
-        if (io.Source.fromFile(targetDir / "/universal/stage/bin" / startScript).mkString.contains("-main")) {
-          Map[String, String](
-            "web" -> ("target/universal/stage/bin/" + startScript + " -Dhttp.port=$PORT"),
-            "console" -> ("target/universal/stage/bin/" + startScript + " -main scala.tools.nsc.MainGenericRunner -usejavacp")
-          )
-        } else {
-          Map[String, String]("web" -> ("target/universal/stage/bin/" + startScript + " -Dhttp.port=$PORT"))
-        }
-      case StartScript(dir) =>
-        Map[String,String]("web" -> "target/start -Dhttp.port=$PORT $JAVA_OPTS")
-    }
+    val defaultProcessTypes =
+      if ((getRootDir / "Procfile").exists())
+        Map[String,String]()
+      else packageType match {
+        case Universal(dir) =>
+          val startScript = (dir / "bin" ** "*").
+            filter(!_.getName.endsWith(".bat")).
+            filter(!_.getName.equals("bin")).
+            get(0).getName
+          if (io.Source.fromFile(targetDir / "/universal/stage/bin" / startScript).mkString.contains("-main")) {
+            Map[String, String](
+              "web" -> ("target/universal/stage/bin/" + startScript + " -Dhttp.port=$PORT"),
+              "console" -> ("target/universal/stage/bin/" + startScript + " -main scala.tools.nsc.MainGenericRunner -usejavacp")
+            )
+          } else {
+            Map[String, String]("web" -> ("target/universal/stage/bin/" + startScript + " -Dhttp.port=$PORT"))
+          }
+        case StartScript(dir) =>
+          Map[String,String]("web" -> "target/start -Dhttp.port=$PORT $JAVA_OPTS")
+      }
 
     // OMG
     val javaProcessTypes = JavaConversions.mapAsJavaMap(defaultProcessTypes ++ JavaConversions.mapAsScalaMap(processTypes))

@@ -28,6 +28,10 @@ TaskKey[Unit]("cleanup") <<= (packageBin in Universal, streams) map { (zipFile, 
 }
 
 TaskKey[Unit]("check") <<= (packageBin in Universal, streams) map { (zipFile, streams) =>
+  val output = Process("heroku", Seq("ps", "-a", remoteAppName)).!!
+  if (!output.contains("-Dtest.var=monkeys")) {
+    sys.error("Plugin should include custom process definitions from Procfile")
+  }
   var retries = 0
   while (retries < 10) {
     try {
