@@ -91,6 +91,11 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
     super.prepare(javaIncludedFiles)
 
     sbt.IO.copyDirectory(targetDir / "resolution-cache" / "reports", getAppDir / "target" / "resolution-cache" / "reports")
+
+    packageType match {
+      case Universal(dir) =>
+        IO.delete(getAppDir / "target" / "universal" / "stage" / "bin" / "RUNNING_PID")
+    }
   }
 
   def packageType: PackageType = {
