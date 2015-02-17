@@ -96,8 +96,8 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
     sbt.IO.copyDirectory(targetDir / "resolution-cache" / "reports", getAppDir / "target" / "resolution-cache" / "reports")
 
     packageType match {
-      case Universal(dir) =>
-        IO.delete(getAppDir / "target" / "universal" / "stage" / "bin" / "RUNNING_PID")
+      case Universal(dir) => IO.delete(getAppDir / "target" / "universal" / "stage" / "bin" / "RUNNING_PID")
+      case _ => {}
     }
   }
 
