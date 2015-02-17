@@ -97,7 +97,7 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
 
     packageType match {
       case Universal(dir) => IO.delete(getAppDir / "target" / "universal" / "stage" / "bin" / "RUNNING_PID")
-      case _ => {}
+      case _ =>
     }
   }
 
