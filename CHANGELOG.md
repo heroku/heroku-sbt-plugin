@@ -1,5 +1,7 @@
 ## Master
 
+*  Fixed a bug in detection of start script
+
 ## 0.3.3
 
 *  Added `herokuSkipSubProjects` setting, which defaults to true

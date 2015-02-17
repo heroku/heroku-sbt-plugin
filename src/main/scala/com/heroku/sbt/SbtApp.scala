@@ -48,7 +48,7 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
           filter(!_.getName.endsWith(".bat")).
           filter(!_.getName.equals("bin")).
           get(0).getName
-        if (io.Source.fromFile("target/universal/stage/bin/" + startScript).mkString.contains("-main")) {
+        if (io.Source.fromFile(targetDir / "/universal/stage/bin" / startScript).mkString.contains("-main")) {
           Map[String, String](
             "web" -> ("target/universal/stage/bin/" + startScript + " -Dhttp.port=$PORT"),
             "console" -> ("target/universal/stage/bin/" + startScript + " -main scala.tools.nsc.MainGenericRunner -usejavacp")
@@ -79,6 +79,7 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
   override def prepare(includedFiles:java.util.List[java.io.File]): Unit = {
     val defaultIncludedFiles = packageType match {
       case Universal(dir) =>
+        IO.delete(targetDir / "universal" / "stage" / "bin" / "RUNNING_PID")
         Seq(dir)
       case StartScript(dir) =>
         Seq(dir, targetDir / "staged")
