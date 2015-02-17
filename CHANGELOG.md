@@ -1,5 +1,7 @@
 ## Master
 
+## 0.3.4
+
 *  Fixed a bug in which Procfile was not being used when present
 *  Fixed a bug in detection of start script
 
