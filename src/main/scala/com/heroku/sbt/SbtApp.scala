@@ -73,7 +73,7 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
         if (ce.getCode == 404) {
           throw new CompileFailed(Array(), s"Could not find app '$name'. Check that herokuAppName setting is correct.", Array())
         } else if (ce.getCode == 403 || ce.getCode == 401) {
-          throw new CompileFailed(Array(), "Check that HEROKU_API_KEY is set correctly, or if the Heroku Toolbelt is installed.", Array())
+          throw new CompileFailed(Array(), "Check that herokuAppName name is correct. If it is, check that HEROKU_API_KEY is correct or if the Heroku Toolbelt is installed.", Array())
         }
         throw ce
     }
