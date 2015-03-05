@@ -108,7 +108,7 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
     } else if ((targetDir / "start").exists) {
       StartScript(targetDir / "start")
     } else {
-      throw new CompileFailed(Array(), "You must stage your application before deploying it!", Array())
+      throw new CompileFailed(Array(), "You must run the `stage` task before deploying your app!", Array())
     }
   }
 
