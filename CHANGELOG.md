@@ -1,5 +1,7 @@
 ## Master
 
+*  Upgraded to heroku-deploy 0.3.5
+
 ## 0.3.4
 
 *  Fixed a bug in which Procfile was not being used when present
