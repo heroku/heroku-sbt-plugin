@@ -1,5 +1,11 @@
 ## Master
 
+## 0.3.6
+
+*  Upgraded to heroku-deploy 0.3.6
+
+## 0.3.5
+
 *  Upgraded to heroku-deploy 0.3.5
 
 ## 0.3.4
