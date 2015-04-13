@@ -53,16 +53,23 @@ herokuJdkVersion in Compile := "1.8"
 
 Valid values are `1.6`, `1.7`, and `1.8`. The default is `1.8`
 
-You can set configuration variables like so:
+You can (but probably should not) set configuration variables like so:
 
 ```scala
 herokuConfigVars in Compile := Map(
   "MY_VAR" -> "some value",
-  "JAVA_OPTS" -> "-Xmx384m -Xss512k -XX:+UseCompressedOops"
+  "JAVA_OPTS" -> "-XX:+UseCompressedOops"
 )
 ```
 
-Any variable defined in `herokuConfigVars` will override defaults.
+If you adhere to the principles of the [12 Factor app](http://12factor.net/config), 
+Configuration should be strictly seperated from code. Thus, you do not want to tie your
+configuration to your codebase. There are a few exceptions to this, such as `conf/routes`, 
+and some `JAVA_OPTS` may be universal. But please use `herokuConfigVars` sparingly. 
+
+Any variable defined in `herokuConfigVars` will override defaults. However, if you remove
+a variable from this list, it will not automatically be removed from your Heroku app 
+(even on the next deploy).
 
 You may set process types (similar to a `Procfile`) with `herokuProcessTypes`:
 
