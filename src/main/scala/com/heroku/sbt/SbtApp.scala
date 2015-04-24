@@ -16,6 +16,8 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
   case class Universal(dir:File) extends PackageType
   case class StartScript(dir:File) extends PackageType
 
+  var percentUpload = 0
+
   override def logDebug(message:String) {
     log.debug(message)
   }
@@ -26,6 +28,18 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
 
   override def logWarn(message:String) {
     log.warn(message)
+  }
+
+  override def logUploadProgress(uploaded:java.lang.Long, contentLength:java.lang.Long) {
+    val newPercent = Math.round((uploaded / contentLength.toFloat) * 100)
+    if (percentUpload != newPercent) {
+      percentUpload = newPercent
+      log.info("\u001B[A\r\u001B[2K" + s"[${Level.Info.toString}] ---> Uploading slug... ($percentUpload%)")
+    }
+  }
+
+  override def isUploadProgressEnabled: java.lang.Boolean = {
+    ConsoleLogger.formatEnabled && !("false" == System.getProperty("heroku.log.format"))
   }
 
   override def deploy(includedFiles:java.util.List[java.io.File], configVars:java.util.Map[String,String], jdkVersion:String, jdkUrl:URL, stack:String, processTypes:java.util.Map[String,String], slugFileName:String) {

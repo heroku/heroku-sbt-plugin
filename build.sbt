@@ -11,7 +11,7 @@ scalaVersion in Global := "2.10.4"
 scalacOptions in Compile += "-deprecation"
 
 libraryDependencies ++= Seq(
-  "com.heroku.sdk" % "heroku-deploy" % "0.3.6"
+  "com.heroku.sdk" % "heroku-deploy" % "0.3.7"
 )
 
 scriptedSettings

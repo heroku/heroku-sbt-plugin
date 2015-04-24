@@ -9,7 +9,7 @@ This is can be useful when deploying from a CI server.
 Add the following to your `project/plugins.sbt` file:
 
 ```scala
-addSbtPlugin("com.heroku" % "sbt-heroku" % "0.3.6")
+addSbtPlugin("com.heroku" % "sbt-heroku" % "0.3.7")
 ```
 
 If you're not using Play, then you'll also need to add the
@@ -101,6 +101,12 @@ herokuSkipSubProjects in Compile := false
 ```
 
 This defaults to `true` (and currently it only runs against all sub-projects or none).
+
+You can disable the upload progress in the console by setting the `heroku.log.format` system property to `false`, like this:
+
+```
+$ sbt -Dheroku.log.format=false deployHeroku
+```
 
 See the `src/sbt-test` directory for examples.
 
