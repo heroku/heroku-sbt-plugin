@@ -1,7 +1,7 @@
 language: scala
 env:
   global:
-  - secure: g49FmEC707LAJ1iuiA1LrWVI4RcNLrfYmA+v6vTYjkhml7extVqPAKFy/UF96SrYVj1OcQOBRUTjSc9fSkaV7HuGWprc2W3+3ON9/nPMb+phfmXGL0bvoTPF3yDJo4iRHGaE9bob4AqrnVFK2qSsOgtRdBMjwAjjkM1Lhf8JAFM=
+  - secure: SAzMU8NSxrOBZuQFgSG7KL5+qbejTxpvPJWpwlyhOmB/BosAhjxdy05zzEPA6X9O4Wjb5WcVPcls9V/bBRqd8xBQ4EqbnBcB37UfhUTOpdXlfNpB7Ga1xq5mec1wIvpXkTasT6mdN4tZJKHw2r8A3IEt01DTLYCsU5nnOlHyfJ0=
 install: "./etc/travis-setup.sh"
 script: sbt scripted
 after_script: heroku keys:remove $USER@`hostname`
