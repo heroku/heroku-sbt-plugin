@@ -94,7 +94,7 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
     }
   }
 
-  override def prepare(includedFiles:java.util.List[java.io.File]): Unit = {
+  override def prepare(includedFiles:java.util.List[java.io.File], processTypes:java.util.Map[String,String]): Unit = {
     val defaultIncludedFiles = packageType match {
       case Universal(dir) =>
         IO.delete(targetDir / "universal" / "stage" / "bin" / "RUNNING_PID")
@@ -106,7 +106,7 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
     // OMG
     val javaIncludedFiles = JavaConversions.seqAsJavaList(defaultIncludedFiles ++ JavaConversions.collectionAsScalaIterable(includedFiles))
 
-    super.prepare(javaIncludedFiles)
+    super.prepare(javaIncludedFiles, processTypes)
 
     sbt.IO.copyDirectory(targetDir / "resolution-cache" / "reports", getAppDir / "target" / "resolution-cache" / "reports")
 
