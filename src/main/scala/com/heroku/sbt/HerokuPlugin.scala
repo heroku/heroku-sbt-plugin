@@ -38,7 +38,7 @@ object HerokuPlugin extends AutoPlugin {
         }
       },
       herokuJdkVersion in Compile := "1.8",
-      herokuAppName in Compile := null,
+      herokuAppName in Compile := "",
       herokuConfigVars in Compile := Map[String,String](),
       herokuProcessTypes in Compile := Map[String,String](),
       herokuJdkUrl in Compile := "",

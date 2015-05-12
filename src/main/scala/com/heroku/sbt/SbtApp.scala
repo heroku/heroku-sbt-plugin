@@ -10,7 +10,7 @@ import sbt.{Logger, _}
 
 import scala.collection.JavaConversions
 
-class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, log:Logger) extends App(buildPackDesc, name, rootDir, targetDir) {
+class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, log:Logger) extends App(buildPackDesc, if (name.isEmpty) null else name, rootDir, targetDir) {
 
   sealed trait PackageType
   case class Universal(dir:File) extends PackageType
