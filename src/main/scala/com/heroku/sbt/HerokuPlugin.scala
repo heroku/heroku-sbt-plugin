@@ -10,6 +10,7 @@ object HerokuPlugin extends AutoPlugin {
   object autoImport {
 
     val deployHeroku = taskKey[Unit]("Deploy to Heroku.")
+    val deployHerokuSlug = taskKey[Unit]("Deploy to Heroku.")
     val herokuJdkVersion = settingKey[String]("Set the major version of the JDK to use.")
     val herokuAppName = settingKey[String]("Set the name of the Heroku application.")
     val herokuConfigVars = settingKey[Map[String,String]]("Config variables to set on the Heroku application.")
@@ -35,6 +36,23 @@ object HerokuPlugin extends AutoPlugin {
           val stack = (herokuStack in deployHeroku).value
           new SbtApp("sbt-heroku", (herokuAppName in deployHeroku).value, baseDirectory.value, target.value, streams.value.log).
             deploy(includedFiles, configVars, jdkUrlOrVersion, stack, processTypes, "slug.tgz")
+        }
+      },
+      deployHerokuSlug := {
+        // TODO this should be able to detect sub-projects in a standard way, and filter sub-projects so that
+        // some could be built and some could be skipped
+        if ((baseDirectory.value / "project").exists || !(herokuSkipSubProjects in deployHeroku).value) {
+          val includedFiles = JavaConversions.seqAsJavaList((herokuIncludePaths in deployHeroku).value.map {
+            case path: String => new java.io.File(path)
+          })
+          val configVars = JavaConversions.mapAsJavaMap((herokuConfigVars in deployHeroku).value)
+          val processTypes = JavaConversions.mapAsJavaMap((herokuProcessTypes in deployHeroku).value)
+          val jdkUrlOrVersion =
+            if ((herokuJdkUrl in deployHeroku).value.isEmpty) (herokuJdkVersion in deployHeroku).value
+            else (herokuJdkUrl in deployHeroku).value
+          val stack = (herokuStack in deployHeroku).value
+          new SbtApp("sbt-heroku", (herokuAppName in deployHeroku).value, baseDirectory.value, target.value, streams.value.log).
+            deploySlug(includedFiles, configVars, jdkUrlOrVersion, stack, processTypes, "slug.tgz")
         }
       },
       herokuJdkVersion in Compile := "1.8",
@@ -63,7 +81,7 @@ object HerokuPlugin extends AutoPlugin {
         (key: ScopedKey[_]) => {
           val taskOption = key.scope.task.toOption
           val loggers = currentFunction(key)
-          if (taskOption.map(_.label) == Some("deployHeroku"))
+          if (taskOption.map(_.label) == Some("deployHeroku") || taskOption.map(_.label) == Some("deployHerokuSlug"))
             new HerokuLogger(target.value / "heroku" / "diagnostics.log") +: loggers
           else
             loggers
