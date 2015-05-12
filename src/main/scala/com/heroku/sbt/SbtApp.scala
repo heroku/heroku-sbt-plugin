@@ -34,7 +34,7 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, lo
     val newPercent = Math.round((uploaded / contentLength.toFloat) * 100)
     if (percentUpload != newPercent) {
       percentUpload = newPercent
-      log.info("\u001B[A\r\u001B[2K" + s"[${Level.Info.toString}] ---> Uploading slug... ($percentUpload%)")
+      log.info("\u001B[A\r\u001B[2K" + s"[${Level.Info.toString}] -----> Uploading slug... ($percentUpload%)")
     }
   }
 

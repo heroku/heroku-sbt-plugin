@@ -24,7 +24,6 @@ object HerokuPlugin extends AutoPlugin {
         // TODO this should be able to detect sub-projects in a standard way, and filter sub-projects so that
         // some could be built and some could be skipped
         if ((baseDirectory.value / "project").exists || !(herokuSkipSubProjects in deployHeroku).value) {
-          if ((herokuAppName in deployHeroku).value == null) throw new IllegalArgumentException("herokuAppName must be defined")
           val includedFiles = JavaConversions.seqAsJavaList((herokuIncludePaths in deployHeroku).value.map {
             case path: String => new java.io.File(path)
           })
@@ -39,7 +38,7 @@ object HerokuPlugin extends AutoPlugin {
         }
       },
       herokuJdkVersion in Compile := "1.8",
-      herokuAppName in Compile := "",
+      herokuAppName in Compile := null,
       herokuConfigVars in Compile := Map[String,String](),
       herokuProcessTypes in Compile := Map[String,String](),
       herokuJdkUrl in Compile := "",
