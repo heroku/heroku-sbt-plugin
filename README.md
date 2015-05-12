@@ -9,13 +9,13 @@ This is can be useful when deploying from a CI server.
 Add the following to your `project/plugins.sbt` file:
 
 ```scala
-addSbtPlugin("com.heroku" % "sbt-heroku" % "0.3.7")
+addSbtPlugin("com.heroku" % "sbt-heroku" % "0.4.1")
 ```
 
 If you're not using Play, then you'll also need to add the
 [sbt-native-packager plugin](https://github.com/sbt/sbt-native-packager), which creates a `stage` task.
 
-Next, add something like this to your `build.sbt`
+Next, add something like this to your `build.sbt` if you do not have a Heroku Git repo in your `git remote`s.
 
 ```scala
 herokuAppName in Compile := "your-heroku-app-name"
