@@ -30,12 +30,10 @@ object HerokuPlugin extends AutoPlugin {
           })
           val configVars = JavaConversions.mapAsJavaMap((herokuConfigVars in deployHeroku).value)
           val processTypes = JavaConversions.mapAsJavaMap((herokuProcessTypes in deployHeroku).value)
-          val jdkUrlOrVersion =
-            if ((herokuJdkUrl in deployHeroku).value.isEmpty) (herokuJdkVersion in deployHeroku).value
-            else (herokuJdkUrl in deployHeroku).value
+          val jdkVersion = (herokuJdkVersion in deployHeroku).value
           val stack = (herokuStack in deployHeroku).value
           new SbtApp("sbt-heroku", (herokuAppName in deployHeroku).value, baseDirectory.value, target.value, streams.value.log).
-            deploy(includedFiles, configVars, jdkUrlOrVersion, stack, processTypes, "slug.tgz")
+            deploy(includedFiles, configVars, jdkVersion, stack, processTypes, "slug.tgz")
         }
       },
       deployHerokuSlug := {
@@ -47,12 +45,15 @@ object HerokuPlugin extends AutoPlugin {
           })
           val configVars = JavaConversions.mapAsJavaMap((herokuConfigVars in deployHeroku).value)
           val processTypes = JavaConversions.mapAsJavaMap((herokuProcessTypes in deployHeroku).value)
-          val jdkUrlOrVersion =
-            if ((herokuJdkUrl in deployHeroku).value.isEmpty) (herokuJdkVersion in deployHeroku).value
-            else (herokuJdkUrl in deployHeroku).value
           val stack = (herokuStack in deployHeroku).value
-          new SbtApp("sbt-heroku", (herokuAppName in deployHeroku).value, baseDirectory.value, target.value, streams.value.log).
-            deploySlug(includedFiles, configVars, jdkUrlOrVersion, stack, processTypes, "slug.tgz")
+          val sbtApp =  new SbtApp("sbt-heroku", (herokuAppName in deployHeroku).value, baseDirectory.value, target.value, streams.value.log)
+          if ((herokuJdkUrl in deployHeroku).value.isEmpty) {
+            val jdkVersion : String = (herokuJdkVersion in deployHeroku).value
+            sbtApp.deploySlug(includedFiles, configVars, jdkVersion, stack, processTypes, "slug.tgz")
+          } else {
+            val jdkUrl : URL = new URL((herokuJdkUrl in deployHeroku).value)
+            sbtApp.deploySlug(includedFiles, configVars, jdkUrl, stack, processTypes, "slug.tgz")
+          }
         }
       },
       herokuJdkVersion in Compile := "1.8",
