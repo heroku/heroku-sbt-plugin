@@ -2,17 +2,15 @@ name := "sample-play-app"
 
 version := "1.0-SNAPSHOT"
 
+lazy val root = (project in file(".")).enablePlugins(PlayScala)
+
 libraryDependencies ++= Seq(
   jdbc,
-  anorm,
-  cache
+  cache,
+  ws
 )
 
-play.Project.playScalaSettings
-
 lazy val remoteAppName = "sbt-heroku-" + sys.props("heroku.uuid")
-
-herokuJdkVersion in Compile := "1.7"
 
 herokuAppName in Compile := remoteAppName
 
