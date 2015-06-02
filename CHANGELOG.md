@@ -1,5 +1,7 @@
 ## Master
 
+*  Added `herokuBuildpacks` setting for custom buildpacks
+
 ## 0.4.2
 
 *  Fixed a bug in setting JDK Url for deployHerokuSlug
