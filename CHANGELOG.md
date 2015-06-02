@@ -1,5 +1,8 @@
 ## Master
 
+## 0.4.3
+
+*  Upgrade to heroku-deploy 0.4.3
 *  Added `herokuBuildpacks` setting for custom buildpacks
 
 ## 0.4.2
