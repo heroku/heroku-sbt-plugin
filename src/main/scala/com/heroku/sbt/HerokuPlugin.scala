@@ -19,6 +19,7 @@ object HerokuPlugin extends AutoPlugin {
     val herokuIncludePaths = settingKey[Seq[String]]("A list of directory paths to include in the slug.")
     val herokuStack = settingKey[String]("The Heroku runtime stack.")
     val herokuSkipSubProjects = settingKey[Boolean]("Instructs the plugin to skip sub-projects if true (default is true).")
+    val herokuBuildpacks = settingKey[Seq[String]]("A list of buildpacks that will be run against the deployment package.")
 
     lazy val baseHerokuSettings: Seq[Def.Setting[_]] = Seq(
       deployHeroku := {
@@ -32,7 +33,8 @@ object HerokuPlugin extends AutoPlugin {
           val processTypes = JavaConversions.mapAsJavaMap((herokuProcessTypes in deployHeroku).value)
           val jdkVersion = (herokuJdkVersion in deployHeroku).value
           val stack = (herokuStack in deployHeroku).value
-          new SbtApp("sbt-heroku", (herokuAppName in deployHeroku).value, baseDirectory.value, target.value, streams.value.log).
+          val buildpacks = JavaConversions.seqAsJavaList((herokuBuildpacks in deployHeroku).value)
+          new SbtApp("sbt-heroku", (herokuAppName in deployHeroku).value, baseDirectory.value, target.value, buildpacks, streams.value.log).
             deploy(includedFiles, configVars, jdkVersion, stack, processTypes, "slug.tgz")
         }
       },
@@ -46,7 +48,7 @@ object HerokuPlugin extends AutoPlugin {
           val configVars = JavaConversions.mapAsJavaMap((herokuConfigVars in deployHeroku).value)
           val processTypes = JavaConversions.mapAsJavaMap((herokuProcessTypes in deployHeroku).value)
           val stack = (herokuStack in deployHeroku).value
-          val sbtApp =  new SbtApp("sbt-heroku", (herokuAppName in deployHeroku).value, baseDirectory.value, target.value, streams.value.log)
+          val sbtApp =  new SbtApp("sbt-heroku", (herokuAppName in deployHeroku).value, baseDirectory.value, target.value, JavaConversions.seqAsJavaList(Seq()), streams.value.log)
           if ((herokuJdkUrl in deployHeroku).value.isEmpty) {
             val jdkVersion : String = (herokuJdkVersion in deployHeroku).value
             sbtApp.deploySlug(includedFiles, configVars, jdkVersion, stack, processTypes, "slug.tgz")
@@ -63,7 +65,8 @@ object HerokuPlugin extends AutoPlugin {
       herokuJdkUrl in Compile := "",
       herokuStack in Compile := "cedar-14",
       herokuIncludePaths in Compile := Seq(),
-      herokuSkipSubProjects in Compile := true
+      herokuSkipSubProjects in Compile := true,
+      herokuBuildpacks in Compile := Seq()
     )
   }
 
