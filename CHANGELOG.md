@@ -1,5 +1,9 @@
 ## Master
 
+## 0.4.2
+
+*  Fixed a bug in setting JDK Url for deployHerokuSlug
+
 ## 0.4.1
 
 *  Upgraded to heroku-deploy 0.4.1
