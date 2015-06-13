@@ -59,7 +59,7 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, bu
     )
 
     val defaultProcessTypes =
-      if ((getRootDir / "Procfile").exists())
+      if ((getRootDir / "Procfile").exists() || !processTypes.isEmpty)
         Map[String,String]()
       else packageType match {
         case Universal(dir) =>
