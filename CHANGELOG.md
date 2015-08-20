@@ -1,5 +1,9 @@
 ## Master
 
+## 0.5.1
+
+*  Upgraded to heroku-deploy 0.5.1
+
 ## 0.4.3.1
 
 *  Bug fix for processTypes without a web entry

@@ -9,7 +9,7 @@ This is can be useful when deploying from a CI server.
 Add the following to your `project/plugins.sbt` file:
 
 ```scala
-addSbtPlugin("com.heroku" % "sbt-heroku" % "0.4.3")
+addSbtPlugin("com.heroku" % "sbt-heroku" % "0.5.1")
 ```
 
 If you're not using Play, then you'll also need to add the
@@ -62,13 +62,13 @@ herokuConfigVars in Compile := Map(
 )
 ```
 
-If you adhere to the principles of the [12 Factor app](http://12factor.net/config), 
+If you adhere to the principles of the [12 Factor app](http://12factor.net/config),
 Configuration should be strictly seperated from code. Thus, you do not want to tie your
-configuration to your codebase. There are a few exceptions to this, such as `conf/routes`, 
-and some `JAVA_OPTS` may be universal. But please use `herokuConfigVars` sparingly. 
+configuration to your codebase. There are a few exceptions to this, such as `conf/routes`,
+and some `JAVA_OPTS` may be universal. But please use `herokuConfigVars` sparingly.
 
 Any variable defined in `herokuConfigVars` will override defaults. However, if you remove
-a variable from this list, it will not automatically be removed from your Heroku app 
+a variable from this list, it will not automatically be removed from your Heroku app
 (even on the next deploy).
 
 You may set process types (similar to a `Procfile`) with `herokuProcessTypes`:
@@ -112,7 +112,7 @@ See the `src/sbt-test` directory for examples.
 
 ## Running a Remote Console
 
-When using `sbt-native-packager` version 0.7.6 or greater, sbt-heroku will create a 
+When using `sbt-native-packager` version 0.7.6 or greater, sbt-heroku will create a
 `console` process type for you. This command can be run like so:
 
 ```sh-session
@@ -125,16 +125,19 @@ Welcome to Scala version 2.10.4 (OpenJDK 64-Bit Server VM, Java 1.8.0_20).
 Type in expressions to have them evaluated.
 Type :help for more information.
 
-scala> 
+scala>
 ```
 
-If you are using Play 2.x, then you will need to upgrade `sbt-native-packager` manually 
-(because Play uses version `0.7.4` by default). 
+If you are using Play 2.x, then you will need to upgrade `sbt-native-packager` manually
+(because Play uses version `0.7.4` by default).
 You can do this by adding the following line of code to your `project/plugins.sbt`:
 
 ```
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.7.6")
 ```
+
+Additionally, the is [a bug in Scala 2.11.6](https://issues.scala-lang.org/browse/SI-9199)
+that causes this console task to fail. Upgrading to Scala 2.11.7 fixes the issue.
 
 ## Deploying to Multiple Environments
 
@@ -157,7 +160,7 @@ $ sbt -DappEnv=test stage deployHeroku
 
 ### Deploying from Git Branches
 
-Another option when using multiple environments is to deploy from a Git branch that corresponds to the environment. This is particularly useful if you are using [git-flow](https://github.com/nvie/gitflow) or a similar process. 
+Another option when using multiple environments is to deploy from a Git branch that corresponds to the environment. This is particularly useful if you are using [git-flow](https://github.com/nvie/gitflow) or a similar process.
 
 First, add the sbt-git plugin ot your `project/plugins.sbt` like this:
 
@@ -210,4 +213,4 @@ $ mvn clean install
 
 Then update the `heroku-deploy` dependency version in the sbt-heroku `build.sbt` to 0.3.3-SNAPSHOT (or whatever
 version is specified in the heroku-deploy `pom.xml`). The next time you run the `scripted` tests it will pick up the
-snapshot version from your local Maven repository. 
+snapshot version from your local Maven repository.
