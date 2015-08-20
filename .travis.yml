@@ -1,9 +1,9 @@
 language: scala
 jdk:
-  - oraclejdk8
+- oraclejdk8
 env:
   global:
-  - secure: PE6tTLrIJ+gXbz0jFc4gX+OmIMYeDzy7CxYf6f43DDw5aPi15490qpYBTFOHd58UO7nF5xkaU0QKLwokpyYRIGQZgbPRYOlGK3JysInPJDk7TaFq83geo7q9d3Hzri5+mvLEuOdY3q4612i84QCCbXmif2HViNPKtuTByllMC2I=
+  - secure: MXWSb7qS16Kz+mrZmUjX1DFsp/csrvhKfZ+ix39eRR4NeaC3C6p0HKR0Bsw2SKgtuIe4yX0szVaUdiNw9kZmi00X29xoyjWreNAI49m6EcneZ6b5HkCdVG8SKB3tDBHPqxVxgE8EkrWEfZ5HBvKdPZlllni+YovLe6Txt5D1tCI=
 install: "./etc/travis-setup.sh"
 script: sbt scripted
 after_script: heroku keys:remove $USER@`hostname`
