@@ -10,11 +10,24 @@ import sbt.{Logger, _}
 
 import scala.collection.JavaConversions
 
-class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, buildpacks:java.util.List[String], log:Logger) extends App(buildPackDesc, if (name.isEmpty) null else name, rootDir, targetDir, buildpacks) {
+class SbtApp(buildPackDesc:String,
+             name:String,
+             rootDir:File,
+             targetDir:File,
+             buildpacks:java.util.List[String],
+             fatjar:Option[File],
+             log:Logger)
+  extends App(
+    buildPackDesc,
+    if (name.isEmpty) null else name,
+    rootDir,
+    targetDir,
+    buildpacks) {
 
   sealed trait PackageType
   case class Universal(dir:File) extends PackageType
   case class StartScript(dir:File) extends PackageType
+  case class FatJar(fatjar:File) extends PackageType
 
   var percentUpload = 0
 
@@ -77,6 +90,8 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, bu
           }
         case StartScript(dir) =>
           Map[String,String]("web" -> "target/start -Dhttp.port=$PORT $JAVA_OPTS")
+        case FatJar(file) =>
+          Map[String,String]("web" -> s"java -jar ${relativize(file)}")
       }
 
     // OMG
@@ -102,6 +117,8 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, bu
         Seq(dir)
       case StartScript(dir) =>
         Seq(dir, targetDir / "staged")
+      case FatJar(file) =>
+        Seq(file)
     }
 
     // OMG
@@ -118,7 +135,9 @@ class SbtApp(buildPackDesc:String, name:String, rootDir:File, targetDir:File, bu
   }
 
   def packageType: PackageType = {
-    if ((targetDir / "universal").exists) {
+    if (fatjar.isDefined) {
+      FatJar(fatjar.get)
+    } else if ((targetDir / "universal").exists) {
       Universal(targetDir / "universal" / "stage")
     } else if ((targetDir / "start").exists) {
       StartScript(targetDir / "start")
