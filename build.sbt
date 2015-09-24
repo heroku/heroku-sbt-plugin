@@ -10,8 +10,7 @@ scalaVersion in Global := "2.10.4"
 
 scalacOptions in Compile += "-deprecation"
 
-resolvers += Resolver.url("heroku-maven-plugin-releases",
-  url("http://dl.bintray.com/heroku/maven"))
+resolvers += Resolver.bintrayRepo("heroku", "maven")
 
 libraryDependencies ++= Seq(
   "com.heroku.sdk" % "heroku-deploy" % "0.5.3"
