@@ -3,7 +3,7 @@ jdk:
 - oraclejdk8
 env:
   global:
-  - secure: MXWSb7qS16Kz+mrZmUjX1DFsp/csrvhKfZ+ix39eRR4NeaC3C6p0HKR0Bsw2SKgtuIe4yX0szVaUdiNw9kZmi00X29xoyjWreNAI49m6EcneZ6b5HkCdVG8SKB3tDBHPqxVxgE8EkrWEfZ5HBvKdPZlllni+YovLe6Txt5D1tCI=
+  - secure: SwxXgTaIfXPO1PEReGZApz8XqQUp04zbHo+HAuIvy6nHJtvhG4HM814NlLoQp3ZKvAXpIq3zRLKEkiTzoGIMDdl2iVp/sPllYPWRM0G8U76US4FPrYXdhDxP+bGCPZCYU8w8kvJ8Hbh1AAYC+g6r/W9RjXoshoCNQsOJvx/6fzo=
 install: "./etc/travis-setup.sh"
 script: sbt scripted
 after_script: heroku keys:remove $USER@`hostname`
