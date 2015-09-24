@@ -14,7 +14,7 @@ addSbtPlugin("com.heroku" % "sbt-heroku" % "0.5.3")
 
 If you're not using Play, then you'll also need to add the
 [sbt-native-packager plugin](https://github.com/sbt/sbt-native-packager), which creates a `stage` task.
-Alternatively, you can deploy a fat JAR using sbt-assembly.
+Alternatively, you can [deploy a fat JAR using sbt-assembly](#deploying-a-fat-jar).
 
 Next, add something like this to your `build.sbt` if you do not have a Heroku Git repo in your `git remote`s.
 
@@ -111,7 +111,7 @@ $ sbt -Dheroku.log.format=false deployHeroku
 
 See the `src/sbt-test` directory for examples.
 
-## Deploy a Fat JAR
+## Deploying a Fat JAR
 
 If you are packaging your application with [sbt-assembly](https://github.com/sbt/sbt-assembly) or any other plugin that
 produces a "fat JAR", you can deploy that file by adding the following configuration to your `build.sbt`:
