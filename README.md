@@ -9,11 +9,12 @@ This is can be useful when deploying from a CI server.
 Add the following to your `project/plugins.sbt` file:
 
 ```scala
-addSbtPlugin("com.heroku" % "sbt-heroku" % "0.5.1")
+addSbtPlugin("com.heroku" % "sbt-heroku" % "0.5.3")
 ```
 
 If you're not using Play, then you'll also need to add the
 [sbt-native-packager plugin](https://github.com/sbt/sbt-native-packager), which creates a `stage` task.
+Alternatively, you can deploy a fat JAR using sbt-assembly.
 
 Next, add something like this to your `build.sbt` if you do not have a Heroku Git repo in your `git remote`s.
 
@@ -109,6 +110,24 @@ $ sbt -Dheroku.log.format=false deployHeroku
 ```
 
 See the `src/sbt-test` directory for examples.
+
+## Deploy a Fat JAR
+
+If you are packaging your application with [sbt-assembly](https://github.com/sbt/sbt-assembly) or any other plugin that
+produces a "fat JAR", you can deploy that file by adding the following configuration to your `build.sbt`:
+
+```scala
+herokuFatJar in Compile := Some((assemblyOutputPath in assembly).value)
+```
+
+If not using sbt-assembly, you may replace `(assemblyOutputPath in assembly).value` with the relative path to your JAR file.
+Then you can deploy by running:
+
+```
+$ sbt assembly deployHeroku
+```
+
+The sbt-heroku plugin will skip the sbt-native-packager bits and deploy your JAR directly to Heroku.
 
 ## Running a Remote Console
 
