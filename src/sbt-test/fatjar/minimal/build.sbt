@@ -11,7 +11,7 @@ libraryDependencies ++= Seq(
   "postgresql" % "postgresql" % "9.0-801.jdbc4"
 )
 
-herokuFatJar in Compile := new File("target") / "scala-2.10" / s"${name.value}-assembly-${version.value}.jar"
+herokuFatJar in Compile := assemblyOutputPath.value
 
 lazy val remoteAppName = "sbt-heroku-" + sys.props("heroku.uuid")
 

@@ -20,7 +20,7 @@ object HerokuPlugin extends AutoPlugin {
     val herokuStack = settingKey[String]("The Heroku runtime stack.")
     val herokuSkipSubProjects = settingKey[Boolean]("Instructs the plugin to skip sub-projects if true (default is true).")
     val herokuBuildpacks = settingKey[Seq[String]]("A list of buildpacks that will be run against the deployment package.")
-    val herokuFatJar = settingKey[Option[File]]("The path to a Fat JAR to deploy.")
+    val herokuFatJar = taskKey[Option[File]]("The path to a Fat JAR to deploy.")
 
     lazy val baseHerokuSettings: Seq[Def.Setting[_]] = Seq(
       deployHeroku := {
