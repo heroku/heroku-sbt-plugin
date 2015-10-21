@@ -30,4 +30,5 @@ echo "Now make sure you update these articles and projects:
     https://devcenter.heroku.com/articles/deploy-scala-and-play-applications-to-heroku-from-travis-ci
     https://github.com/jkutner/heroku-jenkins-scala-example
     https://github.com/jkutner/travis-heroku-scala-example
+    https://github.com/kissaten/sbt-heroku-play-example
 "
