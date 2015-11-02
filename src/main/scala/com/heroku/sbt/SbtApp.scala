@@ -91,7 +91,7 @@ class SbtApp(buildPackDesc:String,
         case StartScript(dir) =>
           Map[String,String]("web" -> "target/start -Dhttp.port=$PORT $JAVA_OPTS")
         case FatJar(file) =>
-          Map[String,String]("web" -> s"java \$JAVA_OPTS -jar ${relativize(file)}")
+          Map[String,String]("web" -> s"java $$JAVA_OPTS -jar ${relativize(file)}")
       }
 
     // OMG
