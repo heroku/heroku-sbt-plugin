@@ -1,3 +1,3 @@
 versionWithGit
 
-git.baseVersion := "0.5.5"
+git.baseVersion := "1.0.0"
