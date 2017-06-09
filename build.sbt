@@ -13,7 +13,7 @@ scalacOptions in Compile += "-deprecation"
 resolvers += Resolver.bintrayRepo("heroku", "maven")
 
 libraryDependencies ++= Seq(
-  "com.heroku.sdk" % "heroku-deploy" % "1.0.0"
+  "com.heroku.sdk" % "heroku-deploy" % "1.1.4"
 )
 
 scriptedSettings
