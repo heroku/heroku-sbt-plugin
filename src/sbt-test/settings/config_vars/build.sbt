@@ -18,8 +18,6 @@ herokuJdkVersion in Compile := "1.7"
 
 herokuAppName in Compile := remoteAppName
 
-herokuStack in Compile := "cedar-14"
-
 herokuConfigVars in Compile := Map(
   "MY_VAR" -> "monkeys with a y",
   "JAVA_OPTS" -> "-Xmx384m -Xss512k -DmyVar=monkeys"
@@ -44,9 +42,5 @@ TaskKey[Unit]("check") := {
   }
   if (!(config.contains("JAVA_OPTS") && config.contains("-Xmx384m -Xss512k -DmyVar=monkeys"))) {
     sys.error("Default config variable was not overridden!")
-  }
-  val info = Process("heroku", Seq("stack", "-a", remoteAppName)).!!
-  if (!info.contains("* cedar-14")) {
-    sys.error("Custom config variable was not set!")
   }
 }
