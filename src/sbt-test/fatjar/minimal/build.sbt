@@ -17,16 +17,19 @@ lazy val remoteAppName = "sbt-heroku-" + sys.props("heroku.uuid")
 
 herokuAppName in Compile := remoteAppName
 
-TaskKey[Unit]("createApp") <<= (packageBin in Compile, streams) map { (zipFile, streams) =>
-  Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.log
-  Process("heroku", Seq("create", "-s", "cedar-14", "-n", remoteAppName)) ! streams.log
+TaskKey[Unit]("createApp") := {
+  (packageBin in Compile).value
+  Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.value.log
+  Process("heroku", Seq("create", "-s", "cedar-14", "-n", remoteAppName)) ! streams.value.log
 }
 
-TaskKey[Unit]("cleanup") <<= (packageBin in Compile, streams) map { (zipFile, streams) =>
-  Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.log
+TaskKey[Unit]("cleanup") := {
+  (packageBin in Compile).value
+  Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.value.log
 }
 
-TaskKey[Unit]("check") <<= (packageBin in Compile, streams) map { (zipFile, streams) =>
+TaskKey[Unit]("check") := {
+  (packageBin in Compile).value
   var retries = 0
   while (retries < 10) {
     try {

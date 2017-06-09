@@ -25,16 +25,19 @@ herokuConfigVars in Compile := Map(
   "JAVA_OPTS" -> "-Xmx384m -Xss512k -DmyVar=monkeys"
 )
 
-TaskKey[Unit]("createApp") <<= (packageBin in Universal, streams) map { (zipFile, streams) =>
-  Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.log
-  Process("heroku", Seq("create", "-n", remoteAppName)) ! streams.log
+TaskKey[Unit]("createApp") := {
+  (packageBin in Universal).value
+  Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.value.log
+  Process("heroku", Seq("create", "-n", remoteAppName)) ! streams.value.log
 }
 
-TaskKey[Unit]("cleanup") <<= (packageBin in Universal, streams) map { (zipFile, streams) =>
-  Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.log
+TaskKey[Unit]("cleanup") := {
+  (packageBin in Universal).value
+  Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.value.log
 }
 
-TaskKey[Unit]("check") <<= (packageBin in Universal, streams) map { (zipFile, streams) =>
+TaskKey[Unit]("check") := {
+  (packageBin in Universal).value
   val config = Process("heroku", Seq("config", "-a", remoteAppName)).!!
   if (!(config.contains("MY_VAR") && config.contains("monkeys with a y"))) {
     sys.error("Custom config variable was not set!")

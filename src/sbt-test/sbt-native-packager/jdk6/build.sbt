@@ -18,16 +18,19 @@ herokuJdkVersion in Compile := "1.6"
 
 herokuAppName in Compile := remoteAppName
 
-TaskKey[Unit]("createApp") <<= (packageBin in Universal, streams) map { (zipFile, streams) =>
-  Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.log
-  Process("heroku", Seq("create", "-n", remoteAppName)) ! streams.log
+TaskKey[Unit]("createApp") := {
+  (packageBin in Universal).value
+  Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.value.log
+  Process("heroku", Seq("create", "-n", remoteAppName)) ! streams.value.log
 }
 
-TaskKey[Unit]("cleanup") <<= (packageBin in Universal, streams) map { (zipFile, streams) =>
-  Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.log
+TaskKey[Unit]("cleanup") := {
+  (packageBin in Universal).value
+  Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.value.log
 }
 
-TaskKey[Unit]("check") <<= (packageBin in Universal, streams) map { (zipFile, streams) =>
+TaskKey[Unit]("check") := {
+  (packageBin in Universal).value
   var retries = 0
   while (retries < 10) {
     try {

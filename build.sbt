@@ -18,7 +18,7 @@ libraryDependencies ++= Seq(
 
 scriptedSettings
 
-scriptedLaunchOpts <+= version apply { v => "-Dproject.version="+v }
+scriptedLaunchOpts += { "-Dproject.version="+version.value }
 
 scriptedLaunchOpts := { scriptedLaunchOpts.value ++
   Seq("-Xmx1024M", "-XX:MaxPermSize=256M",
