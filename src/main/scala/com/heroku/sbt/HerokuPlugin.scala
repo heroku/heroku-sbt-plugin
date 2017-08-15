@@ -26,39 +26,25 @@ object HerokuPlugin extends AutoPlugin {
       deployHeroku := {
         // TODO this should be able to detect sub-projects in a standard way, and filter sub-projects so that
         // some could be built and some could be skipped
-        if ((baseDirectory.value / "project").exists || !(herokuSkipSubProjects in deployHeroku).value) {
-          val includedFiles = JavaConversions.seqAsJavaList((herokuIncludePaths in deployHeroku).value.map {
+        val baseDirectoryValue = baseDirectory.value
+        val herokuSkipSubProjectsValue = (herokuSkipSubProjects in deployHeroku).value
+        val jdkVersion = herokuJdkVersion.value
+        val stack = herokuStack.value
+        val buildpacks = JavaConversions.seqAsJavaList(herokuBuildpacks.value)
+        val fatjar = herokuFatJar.value
+        val targetValue = target.value
+        val streamsValue = streams.value
+        val streamsLog = streamsValue.log
+        val herokuAppNameValue = herokuAppName.value
+        val configVars = JavaConversions.mapAsJavaMap(herokuConfigVars.value)
+        val processTypes = JavaConversions.mapAsJavaMap(herokuProcessTypes.value)
+        val herokuIncludePathsValue = herokuIncludePaths.value
+        if ((baseDirectoryValue / "project").exists || !herokuSkipSubProjectsValue) {
+          val includedFiles = JavaConversions.seqAsJavaList(herokuIncludePathsValue.map {
             case path: String => new java.io.File(path)
           })
-          val configVars = JavaConversions.mapAsJavaMap((herokuConfigVars in deployHeroku).value)
-          val processTypes = JavaConversions.mapAsJavaMap((herokuProcessTypes in deployHeroku).value)
-          val jdkVersion = (herokuJdkVersion in deployHeroku).value
-          val stack = (herokuStack in deployHeroku).value
-          val buildpacks = JavaConversions.seqAsJavaList((herokuBuildpacks in deployHeroku).value)
-          val fatjar = (herokuFatJar in deployHeroku).value
-          new SbtApp("sbt-heroku", (herokuAppName in deployHeroku).value, baseDirectory.value, target.value, buildpacks, fatjar, streams.value.log).
+          new SbtApp("sbt-heroku", herokuAppNameValue, baseDirectoryValue, targetValue, buildpacks, fatjar, streamsLog).
             deploy(includedFiles, configVars, jdkVersion, stack, processTypes, "slug.tgz")
-        }
-      },
-      deployHerokuSlug := {
-        // TODO this should be able to detect sub-projects in a standard way, and filter sub-projects so that
-        // some could be built and some could be skipped
-        if ((baseDirectory.value / "project").exists || !(herokuSkipSubProjects in deployHeroku).value) {
-          val includedFiles = JavaConversions.seqAsJavaList((herokuIncludePaths in deployHeroku).value.map {
-            case path: String => new java.io.File(path)
-          })
-          val configVars = JavaConversions.mapAsJavaMap((herokuConfigVars in deployHeroku).value)
-          val processTypes = JavaConversions.mapAsJavaMap((herokuProcessTypes in deployHeroku).value)
-          val stack = (herokuStack in deployHeroku).value
-          val fatjar = (herokuFatJar in deployHeroku).value
-          val sbtApp =  new SbtApp("sbt-heroku", (herokuAppName in deployHeroku).value, baseDirectory.value, target.value, JavaConversions.seqAsJavaList(Seq()), fatjar, streams.value.log)
-          if ((herokuJdkUrl in deployHeroku).value.isEmpty) {
-            val jdkVersion : String = (herokuJdkVersion in deployHeroku).value
-            sbtApp.deploySlug(includedFiles, configVars, jdkVersion, stack, processTypes, "slug.tgz")
-          } else {
-            val jdkUrl : URL = new URL((herokuJdkUrl in deployHeroku).value)
-            sbtApp.deploySlug(includedFiles, configVars, jdkUrl, stack, processTypes, "slug.tgz")
-          }
         }
       },
       herokuJdkVersion in Compile := "1.8",
@@ -86,42 +72,15 @@ object HerokuPlugin extends AutoPlugin {
       libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value % "runtime",
       extraLoggers := {
         val currentFunction = extraLoggers.value
+        val targetValue = target.value
         (key: ScopedKey[_]) => {
           val taskOption = key.scope.task.toOption
           val loggers = currentFunction(key)
-          if (taskOption.map(_.label) == Some("deployHeroku") || taskOption.map(_.label) == Some("deployHerokuSlug"))
-            new HerokuLogger(target.value / "heroku" / "diagnostics.log") +: loggers
+          if (taskOption.map(_.label) == Some("deployHeroku"))
+            loggers :+ new HerokuLogger(targetValue / "heroku" / "diagnostics.log")
           else
             loggers
         }
       }
     )
-}
-
-class HerokuLogger (diagnosticsFile: File) extends BasicLogger {
-  IO.writeLines(diagnosticsFile, Seq(
-    "+--------------------------------------------------------------------",
-    "| JDK Version -> " + System.getProperty("java.version"),
-    "| Java Vendor -> " + System.getProperty("java.vendor.url"),
-    "| Java Home   -> " + System.getProperty("java.home"),
-    "| OS Arch     -> " + System.getProperty("os.arch"),
-    "| OS Name     -> " + System.getProperty("os.name"),
-    "| JAVA_OPTS   -> " + System.getenv("JAVA_OPTS"),
-    "| SBT_OPTS    -> " + System.getenv("SBT_OPTS"),
-    "+--------------------------------------------------------------------"
-  ))
-
-  def log(level: Level.Value, message: => String): Unit =
-    IO.write(diagnosticsFile, message + "\n", IO.defaultCharset, true)
-
-  def trace(t: => Throwable): Unit = {
-    IO.write(diagnosticsFile, t.getMessage, IO.defaultCharset, true)
-    IO.writeLines(diagnosticsFile, t.getStackTrace.map("    " + _.toString), IO.defaultCharset, true)
-  }
-
-  def success(message: => String): Unit =
-    IO.write(diagnosticsFile, message + "\n", IO.defaultCharset, true)
-
-  def control(event: ControlEvent.Value, message: => String): Unit = {}
-  def logAll(events: Seq[LogEvent]): Unit = events.foreach(log)
 }
