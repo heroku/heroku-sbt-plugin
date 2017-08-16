@@ -1,38 +1,66 @@
-import bintray.Keys._
-
-sbtPlugin := true
+lazy val `sbt-heroku` = project in file(".")
 
 name := "sbt-heroku"
 
 organization := "com.heroku"
 
-scalaVersion in Global := "2.10.4"
+sbtPlugin := true
 
-scalacOptions in Compile += "-deprecation"
+crossSbtVersions := Vector("0.13.16", "1.0.0")
+
+licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
+
+scalacOptions += "-deprecation"
 
 resolvers += Resolver.bintrayRepo("heroku", "maven")
 
 libraryDependencies ++= Seq(
-  "com.heroku.sdk" % "heroku-deploy" % "1.1.4"
+  "com.heroku.sdk" % "heroku-deploy" % "1.2.0"
 )
 
+publishMavenStyle := false
+
+// Scripted
 scriptedSettings
-
 scriptedLaunchOpts += { "-Dproject.version="+version.value }
-
 scriptedLaunchOpts := { scriptedLaunchOpts.value ++
   Seq("-Xmx1024M", "-XX:MaxPermSize=256M",
     "-Dheroku.uuid=" + java.util.UUID.randomUUID.toString.substring(0,15))
 }
 
-publishMavenStyle := false
+// Bintray
+bintrayOrganization := Some("heroku")
+bintrayRepository := "sbt-plugins"
+bintrayPackage := "sbt-heroku"
+bintrayReleaseOnPublish := false
 
-bintrayPublishSettings
+// Git
+val tagName = Def.setting{
+  s"v${if (releaseUseGlobalVersion.value) (version in ThisBuild).value else version.value}"
+}
+val tagOrHash = Def.setting{
+  if(isSnapshot.value)
+    sys.process.Process("git rev-parse HEAD").lines_!.head
+  else
+    tagName.value
+}
 
-repository in bintray := "sbt-plugins"
+releaseTagName := tagName.value
 
-licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
-
-bintrayOrganization in bintray := Some("heroku")
-
-Release.settings
+// Release
+import ReleaseTransformations._
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  releaseStepCommandAndRemaining("^ test"),
+  releaseStepCommandAndRemaining("^ scripted"),
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  releaseStepCommandAndRemaining("^ publishSigned"),
+  releaseStepTask(bintrayRelease in `sbt-heroku`),
+  setNextVersion,
+  commitNextVersion,
+  pushChanges
+)

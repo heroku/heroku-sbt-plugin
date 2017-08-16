@@ -5,7 +5,6 @@ import java.net.URL
 
 import com.heroku.sdk.deploy.App
 import org.apache.http.client.HttpResponseException
-import sbt.compiler.CompileFailed
 import sbt.{Logger, _}
 
 import scala.collection.JavaConversions
@@ -80,7 +79,7 @@ class SbtApp(buildPackDesc:String,
             filter(!_.getName.endsWith(".bat")).
             filter(!_.getName.equals("bin")).
             get(0).getName
-          if (io.Source.fromFile(targetDir / "/universal/stage/bin" / startScript).mkString.contains("-main")) {
+          if (scala.io.Source.fromFile(targetDir / "/universal/stage/bin" / startScript).mkString.contains("-main")) {
             Map[String, String](
               "web" -> ("target/universal/stage/bin/" + startScript + " -Dhttp.port=$PORT"),
               "console" -> ("target/universal/stage/bin/" + startScript + " -main scala.tools.nsc.MainGenericRunner -usejavacp")
@@ -102,9 +101,9 @@ class SbtApp(buildPackDesc:String,
     } catch {
       case e: HttpResponseException =>
         if (e.getStatusCode == 404) {
-          throw new CompileFailed(Array(), s"Could not find app '$name'. Check that herokuAppName setting is correct.", Array())
+          throw new RuntimeException(s"Could not find app '$name'. Check that herokuAppName setting is correct.")
         } else if (e.getStatusCode == 403 || e.getStatusCode == 401) {
-          throw new CompileFailed(Array(), "Check that herokuAppName name is correct. If it is, check that HEROKU_API_KEY is correct or if the Heroku Toolbelt is installed.", Array())
+          throw new RuntimeException("Check that herokuAppName name is correct. If it is, check that HEROKU_API_KEY is correct or if the Heroku Toolbelt is installed.")
         }
         throw e
     }
@@ -142,7 +141,7 @@ class SbtApp(buildPackDesc:String,
     } else if ((targetDir / "start").exists) {
       StartScript(targetDir / "start")
     } else {
-      throw new CompileFailed(Array(), "You must run the `stage` task before deploying your app!", Array())
+      throw new RuntimeException("You must run the `stage` task before deploying your app!")
     }
   }
 
