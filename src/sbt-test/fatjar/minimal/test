@@ -5,8 +5,8 @@ $ exists target/scala-2.10/scala-getting-started-assembly-1.0.jar
 > show deployHeroku
 $ exists target/heroku/app/
 -$ exists target/heroku/app/.jdk/bin/java
-$ exists target/heroku/slug.tgz
--$ exists target/heroku/app/target/heroku/slug.tgz
+$ exists target/heroku/build.tgz
+-$ exists target/heroku/app/target/heroku/build.tgz
 $ exists target/heroku/diagnostics.log
 > check
 > cleanup

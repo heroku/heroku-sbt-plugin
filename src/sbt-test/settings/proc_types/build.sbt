@@ -39,7 +39,7 @@ TaskKey[Unit]("runWorker") := {
   (packageBin in Universal).value
   val output = Process("heroku", Seq("run", "worker", "-a", remoteAppName)).!!
   if (!output.contains("1.8.0")) {
-    sys.error("Plugin should include custom process definitions")
+    sys.error("Plugin should include custom process definitions: " + output)
   }
 }
 

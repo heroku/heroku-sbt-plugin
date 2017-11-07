@@ -33,7 +33,7 @@ TaskKey[Unit]("check") := {
   (packageBin in Universal).value
   val output = Process("heroku", Seq("ps", "-a", remoteAppName)).!!
   if (!output.contains("-Dtest.var=monkeys")) {
-    sys.error("Plugin should include custom process definitions from Procfile")
+    sys.error("Plugin should include custom process definitions from Procfile: " + output)
   }
   var retries = 0
   while (retries < 10) {

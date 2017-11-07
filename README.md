@@ -89,12 +89,6 @@ herokuIncludePaths in Compile := Seq(
 )
 ```
 
-You can also set the [Heroku runtime stack](https://devcenter.heroku.com/articles/cedar):
-
-```scala
-herokuStack in Compile := "cedar-14"
-```
-
 You can run the plugin against all sub-projects (in addition to the root project) by setting the following option:
 
 ```scala

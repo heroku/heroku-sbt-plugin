@@ -29,7 +29,6 @@ object HerokuPlugin extends AutoPlugin {
         val baseDirectoryValue = baseDirectory.value
         val herokuSkipSubProjectsValue = (herokuSkipSubProjects in deployHeroku).value
         val jdkVersion = herokuJdkVersion.value
-        val stack = herokuStack.value
         val buildpacks = JavaConversions.seqAsJavaList(herokuBuildpacks.value)
         val fatjar = herokuFatJar.value
         val targetValue = target.value
@@ -43,16 +42,22 @@ object HerokuPlugin extends AutoPlugin {
           val includedFiles = JavaConversions.seqAsJavaList(herokuIncludePathsValue.map {
             case path: String => new java.io.File(path)
           })
-          new SbtApp("sbt-heroku", herokuAppNameValue, baseDirectoryValue, targetValue, buildpacks, fatjar, streamsLog).
-            deploy(includedFiles, configVars, jdkVersion, stack, processTypes, "slug.tgz")
+          new SbtApp(
+              "sbt-heroku",
+              herokuAppNameValue,
+              baseDirectoryValue,
+              targetValue,
+              buildpacks,
+              fatjar,
+              streamsLog,
+              processTypes
+            ).deploy(includedFiles, configVars, jdkVersion, "build.tgz")
         }
       },
       herokuJdkVersion in Compile := "1.8",
       herokuAppName in Compile := System.getProperty("heroku.appName", ""),
       herokuConfigVars in Compile := Map[String,String](),
       herokuProcessTypes in Compile := Map[String,String](),
-      herokuJdkUrl in Compile := "",
-      herokuStack in Compile := "cedar-14",
       herokuIncludePaths in Compile := Seq(),
       herokuSkipSubProjects in Compile := true,
       herokuBuildpacks in Compile := Seq(),
