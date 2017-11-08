@@ -15,8 +15,7 @@ class SbtApp(buildPackDesc:String,
              targetDir:File,
              buildpacks:java.util.List[String],
              fatjar:Option[File],
-             log:Logger,
-             processTypes:java.util.Map[String,String])
+             log:Logger)
   extends App(
     buildPackDesc,
     if (name.isEmpty) null else name,
@@ -55,7 +54,7 @@ class SbtApp(buildPackDesc:String,
     ConsoleLogger.formatEnabled && !("false" == System.getProperty("heroku.log.format"))
   }
 
-  override def deploy(includedFiles:java.util.List[java.io.File], configVars:java.util.Map[String,String], jdkVersion:String, slugFileName:String) {
+  override def deploy(includedFiles:java.util.List[java.io.File], configVars:java.util.Map[String,String], jdkVersion:String, processTypes:java.util.Map[String,String], slugFileName:String) {
     logDebug(
       s"+--------------------+\n" +
         s"| sbt-heroku details |\n" +
@@ -69,20 +68,6 @@ class SbtApp(buildPackDesc:String,
         s"+--------------------------------------------------------------------\n"
     )
 
-    try {
-      super.deploy(includedFiles, configVars, jdkVersion, slugFileName)
-    } catch {
-      case e: HttpResponseException =>
-        if (e.getStatusCode == 404) {
-          throw new RuntimeException(s"Could not find app '$name'. Check that herokuAppName setting is correct.")
-        } else if (e.getStatusCode == 403 || e.getStatusCode == 401) {
-          throw new RuntimeException("Check that herokuAppName name is correct. If it is, check that HEROKU_API_KEY is correct or if the Heroku Toolbelt is installed.")
-        }
-        throw e
-    }
-  }
-
-  override def defaultProcTypes(): java.util.Map[String,String] = {
     val defaultProcessTypes =
       if ((getRootDir / "Procfile").exists() || !processTypes.isEmpty)
         Map[String,String]()
@@ -107,7 +92,19 @@ class SbtApp(buildPackDesc:String,
       }
 
     // OMG
-    return JavaConversions.mapAsJavaMap(defaultProcessTypes ++ JavaConversions.mapAsScalaMap(processTypes))
+    val javaProcessTypes = JavaConversions.mapAsJavaMap(defaultProcessTypes ++ JavaConversions.mapAsScalaMap(processTypes))
+
+    try {
+      super.deploy(includedFiles, configVars, jdkVersion, javaProcessTypes, slugFileName)
+    } catch {
+      case e: HttpResponseException =>
+        if (e.getStatusCode == 404) {
+          throw new RuntimeException(s"Could not find app '$name'. Check that herokuAppName setting is correct.")
+        } else if (e.getStatusCode == 403 || e.getStatusCode == 401) {
+          throw new RuntimeException("Check that herokuAppName name is correct. If it is, check that HEROKU_API_KEY is correct or if the Heroku Toolbelt is installed.")
+        }
+        throw e
+    }
   }
 
   override def prepare(includedFiles:java.util.List[java.io.File], processTypes:java.util.Map[String,String]): Unit = {

@@ -49,9 +49,8 @@ object HerokuPlugin extends AutoPlugin {
               targetValue,
               buildpacks,
               fatjar,
-              streamsLog,
-              processTypes
-            ).deploy(includedFiles, configVars, jdkVersion, "build.tgz")
+              streamsLog
+            ).deploy(includedFiles, configVars, jdkVersion, processTypes, "build.tgz")
         }
       },
       herokuJdkVersion in Compile := "1.8",
