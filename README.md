@@ -9,7 +9,7 @@ This is can be useful when deploying from a CI server.
 Add the following to your `project/plugins.sbt` file:
 
 ```scala
-addSbtPlugin("com.heroku" % "sbt-heroku" % "2.1.0")
+addSbtPlugin("com.heroku" % "sbt-heroku" % "2.1.2")
 ```
 
 If you're not using Play, then you'll also need to add the
