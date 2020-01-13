@@ -52,7 +52,7 @@ You may set the desired JDK version like so:
 herokuJdkVersion in Compile := "1.8"
 ```
 
-Valid values are `1.6`, `1.7`, and `1.8`. The default is `1.8`
+Valid values are `1.7`, and `1.8`. The default is `1.8`
 
 You can (but probably should not) set configuration variables like so:
 
