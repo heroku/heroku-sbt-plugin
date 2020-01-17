@@ -101,7 +101,7 @@ class SbtApp(buildPackDesc:String,
         if (e.getStatusCode == 404) {
           throw new RuntimeException(s"Could not find app '$name'. Check that herokuAppName setting is correct.")
         } else if (e.getStatusCode == 403 || e.getStatusCode == 401) {
-          throw new RuntimeException("Check that herokuAppName name is correct. If it is, check that HEROKU_API_KEY is correct or if the Heroku Toolbelt is installed.")
+          throw new RuntimeException("Check that herokuAppName name is correct. If it is, check that HEROKU_API_KEY is correct or if the Heroku CLI is installed.")
         }
         throw e
     }
