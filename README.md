@@ -22,13 +22,13 @@ Next, add something like this to your `build.sbt` if you do not have a Heroku Gi
 herokuAppName in Compile := "your-heroku-app-name"
 ```
 
-Now, if you have the [Heroku Toolbelt](https://toolbelt.heroku.com/) installed, run:
+Now, if you have the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) installed, run:
 
 ```sh-session
 $ sbt stage deployHeroku
 ```
 
-If you do not have the toolbelt installed, then run:
+If you do not have the CLI installed, then run:
 
 ```sh-session
 $ HEROKU_API_KEY="xxx-xxx-xxxx" sbt stage deployHeroku
@@ -49,10 +49,10 @@ And replace "xxx-xxx-xxxx" with the value of your Heroku API token.
 You may set the desired JDK version like so:
 
 ```scala
-herokuJdkVersion in Compile := "1.8"
+herokuJdkVersion in Compile := "11"
 ```
 
-Valid values are `1.7`, and `1.8`. The default is `1.8`
+For a list of supported JDK versions, refer to the [Heroku Java Support DevCenter article](https://devcenter.heroku.com/articles/java-support#supported-java-versions).
 
 You can (but probably should not) set configuration variables like so:
 
@@ -141,8 +141,7 @@ Type :help for more information.
 scala>
 ```
 
-If you are using Play 2.x, then you will need to upgrade `sbt-native-packager` manually
-(because Play uses version `0.7.4` by default).
+For older versions of Play 2.x it might be necessary to upgrade `sbt-native-packager` manually.
 You can do this by adding the following line of code to your `project/plugins.sbt`:
 
 ```
@@ -201,7 +200,7 @@ showCurrentGitBranch
 
 ## Hacking
 
-In order to run the test suite, you must have the [Heroku Toolbelt](https://toolbelt.heroku.com/) installed. Then run:
+In order to run the test suite, you must have the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) installed. Then run:
 
 ```sh-session
 $ sbt scripted
@@ -224,6 +223,6 @@ $ cd heroku-maven-plugin/heroku-deploy
 $ mvn clean install
 ```
 
-Then update the `heroku-deploy` dependency version in the sbt-heroku `build.sbt` to 0.3.3-SNAPSHOT (or whatever
-version is specified in the heroku-deploy `pom.xml`). The next time you run the `scripted` tests it will pick up the
+Then update the `heroku-deploy` dependency version in the sbt-heroku `build.sbt` to whatever
+version is specified in the heroku-deploy `pom.xml`. The next time you run the `scripted` tests it will pick up the
 snapshot version from your local Maven repository.
