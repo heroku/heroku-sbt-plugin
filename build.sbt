@@ -6,7 +6,7 @@ organization := "com.heroku"
 
 sbtPlugin := true
 
-crossSbtVersions := Vector("0.13.16", "1.0.0")
+crossSbtVersions := Vector("0.13.18", "1.0.0")
 
 licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
 
