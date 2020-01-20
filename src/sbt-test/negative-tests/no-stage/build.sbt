@@ -6,7 +6,7 @@ name := """scala-getting-started"""
 
 version := "1.0"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.10.7"
 
 libraryDependencies ++= Seq(
   "com.twitter" % "finagle-http_2.10" % "6.18.0"

@@ -3,7 +3,6 @@ jdk:
   - openjdk8
 install: "./etc/travis-setup.sh"
 script:
-  - sbt "^^ 0.13.16" publishLocal
-  - sbt "^^ 1.0.0" publishLocal
+  - sbt "^publishLocal"
   - sbt scripted
 after_script: heroku keys:remove $USER@`hostname`

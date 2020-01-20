@@ -2,7 +2,7 @@ name := """scala-getting-started"""
 
 version := "1.0"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.10.7"
 
 mainClass in Compile := Some("com.example.Server")
 
@@ -20,7 +20,7 @@ herokuAppName in Compile := remoteAppName
 TaskKey[Unit]("createApp") := {
   (packageBin in Compile).value
   Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.value.log
-  Process("heroku", Seq("create", "-s", "cedar-14", "-n", remoteAppName)) ! streams.value.log
+  Process("heroku", Seq("create", "-n", remoteAppName)) ! streams.value.log
 }
 
 TaskKey[Unit]("cleanup") := {
