@@ -6,7 +6,7 @@ name := """scala-getting-started"""
 
 version := "1.0"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.10.7"
 
 libraryDependencies ++= Seq(
   "com.twitter" % "finagle-http_2.10" % "6.18.0"
@@ -28,7 +28,7 @@ herokuProcessTypes in Compile := Map(
 TaskKey[Unit]("createApp") := {
   (packageBin in Universal).value
   Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.value.log
-  Process("heroku", Seq("create", "-s", "cedar-14", "-n", remoteAppName)) ! streams.value.log
+  Process("heroku", Seq("create", "-n", remoteAppName)) ! streams.value.log
 }
 
 TaskKey[Unit]("cleanup") := {

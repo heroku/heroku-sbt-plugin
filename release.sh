@@ -5,6 +5,6 @@ set -o pipefail
 # fail harder
 set -eu
 
-sbt "^^ 0.13.16" publishLocal
+sbt "^^ 0.13.18" publishLocal
 sbt "^^ 1.0.0" publishLocal
 sbt release
