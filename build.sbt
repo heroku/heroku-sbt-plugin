@@ -22,7 +22,7 @@ publishMavenStyle := false
 
 // Scripted
 scriptedSettings
-scriptedLaunchOpts += { "-Dproject.version="+version.value }
+scriptedLaunchOpts += { "-Dproject.version=" + version.value }
 scriptedLaunchOpts := { scriptedLaunchOpts.value ++
   Seq("-Xmx1024M", "-XX:MaxPermSize=256M",
     "-Dheroku.uuid=" + java.util.UUID.randomUUID.toString.substring(0,15))
