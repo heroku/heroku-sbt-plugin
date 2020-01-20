@@ -1,8 +1,6 @@
 language: scala
 jdk:
   - openjdk8
-  - openjdk11
-  - openjdk13
 install: "./etc/travis-setup.sh"
 script:
   - sbt "^publishLocal"
