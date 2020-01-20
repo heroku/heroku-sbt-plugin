@@ -106,7 +106,6 @@ class SbtApp(buildPackDesc:String,
         throw e
     }
   }
-
   override def prepare(includedFiles:java.util.List[java.io.File], processTypes:java.util.Map[String,String]): Unit = {
     val defaultIncludedFiles = packageType match {
       case Universal(dir) =>

@@ -20,7 +20,7 @@ herokuAppName in Compile := remoteAppName
 TaskKey[Unit]("createApp") := {
   (packageBin in Compile).value
   Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.value.log
-  Process("heroku", Seq("create", "-s", "cedar-14", "-n", remoteAppName)) ! streams.value.log
+  Process("heroku", Seq("create", "-n", remoteAppName)) ! streams.value.log
 }
 
 TaskKey[Unit]("cleanup") := {

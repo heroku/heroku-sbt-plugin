@@ -6,7 +6,6 @@ $ exists target/universal/stage/bin/scala-getting-started
 $ exists target/heroku/app/
 -$ exists target/heroku/app/.jdk/bin/java
 $ exists target/heroku/app/system.properties
-$ exists target/heroku/app/target/resolution-cache/reports
 $ exists target/heroku/build.tgz
 -$ exists target/heroku/app/target/heroku/build.tgz
 $ exists target/heroku/diagnostics.log
