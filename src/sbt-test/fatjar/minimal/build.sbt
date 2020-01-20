@@ -2,7 +2,7 @@ name := """scala-getting-started"""
 
 version := "1.0"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.10.7"
 
 mainClass in Compile := Some("com.example.Server")
 
