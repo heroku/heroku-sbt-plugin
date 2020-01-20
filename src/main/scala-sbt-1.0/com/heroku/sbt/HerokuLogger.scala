@@ -10,6 +10,7 @@ import org.apache.logging.log4j.core.LogEvent
   *         Twitter: @codefinger
   */
 class HerokuLogger(diagnosticsFile:File) extends AbstractAppender("heroku-logger", null, null) {
+  this.start()
 
   IO.writeLines(diagnosticsFile, Seq(
   "+--------------------------------------------------------------------",
