@@ -1,0 +1,9 @@
+> createApp
+> show stage
+$ exists target/universal/stage/bin/2-8
+> show deployHeroku
+$ exists target/heroku/app/
+$ exists target/heroku/build.tgz
+$ exists target/heroku/diagnostics.log
+> check
+> cleanup
