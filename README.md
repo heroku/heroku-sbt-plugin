@@ -1,4 +1,4 @@
-Heroku sbt Plugin [![Build Status](https://travis-ci.org/heroku/sbt-heroku.svg?branch=master)](https://travis-ci.org/heroku/sbt-heroku) [![Download](https://api.bintray.com/packages/heroku/sbt-plugins/sbt-heroku/images/download.svg) ](https://bintray.com/heroku/sbt-plugins/sbt-heroku/_latestVersion)
+Heroku sbt Plugin [![Build Status](https://travis-ci.com/heroku/sbt-heroku.svg?branch=main)](https://travis-ci.com/heroku/sbt-heroku) [![Download](https://api.bintray.com/packages/heroku/sbt-plugins/sbt-heroku/images/download.svg) ](https://bintray.com/heroku/sbt-plugins/sbt-heroku/_latestVersion)
 =================
 
 This plugin is used to deploy Scala and Play applications directly to Heroku without pushing to a Git repository.
@@ -188,7 +188,6 @@ Then in your `build.sbt` you can configure the sbt-heroku plugin to deploy to th
 import com.typesafe.sbt.SbtGit._
 
 // ...
-
 herokuAppName in Compile := Map(
   "testing"    -> "myapp-testing",
   "staging"    -> "myapp-staging",
@@ -213,7 +212,7 @@ $ sbt "scripted settings/config_vars"
 ```
 
 The heavy lifting for this plugin is done by the `heroku-deploy` library. The source code for that project can be found
-in the [heroku-maven-plugin repository](https://github.com/heroku/heroku-maven-plugin/tree/master/heroku-deploy). If you
+in the [heroku-maven-plugin repository](https://github.com/heroku/heroku-maven-plugin/tree/main/heroku-deploy). If you
 need to update that library, do this:
 
 ```sh-session
