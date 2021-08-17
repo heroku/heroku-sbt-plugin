@@ -1,8 +1,0 @@
-language: scala
-jdk:
-  - openjdk8
-install: "./etc/travis-setup.sh"
-script:
-  - sbt "^publishLocal"
-  - sbt scripted
-after_script: heroku keys:remove $USER@`hostname`
