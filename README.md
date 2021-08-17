@@ -1,5 +1,7 @@
-Heroku sbt Plugin [![Build Status](https://travis-ci.com/heroku/sbt-heroku.svg?branch=main)](https://travis-ci.com/heroku/sbt-heroku) [![Download](https://api.bintray.com/packages/heroku/sbt-plugins/sbt-heroku/images/download.svg) ](https://bintray.com/heroku/sbt-plugins/sbt-heroku/_latestVersion)
+Heroku sbt Plugin
 =================
+[![](https://badgen.net/github/license/heroku/sbt-heroku)](LICENSE)
+[![](https://badgen.net/circleci/github/heroku/sbt-heroku/main)](https://circleci.com/gh/heroku/sbt-heroku/tree/main)
 
 This plugin is used to deploy Scala and Play applications directly to Heroku without pushing to a Git repository.
 This is can be useful when deploying from a CI server.
