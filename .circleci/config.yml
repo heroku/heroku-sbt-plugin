@@ -24,7 +24,7 @@ jobs:
           version: 1.4.1
       - checkout
       - run: sbt "^publishLocal"
-      - run: sbt scripted
+      - run: sbt "^scripted"
 
 workflows:
   ci:

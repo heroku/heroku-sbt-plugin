@@ -73,7 +73,6 @@ object HerokuPlugin extends AutoPlugin {
   override val projectSettings: Seq[Setting[_]] =
     inConfig(Compile)(baseHerokuSettings) ++
     Seq(
-      libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value % "runtime",
       extraLoggers := {
         val currentFunction = extraLoggers.value
         val targetValue = target.value
