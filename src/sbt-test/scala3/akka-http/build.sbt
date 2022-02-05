@@ -1,11 +1,13 @@
+import scala.sys.process._
+
 name := "scala3-getting-started"
 
 version := "1.0"
 
-scalaVersion := "3.0.1"
+scalaVersion := "3.1.2"
 
-val AkkaVersion = "2.6.8"
-val AkkaHttpVersion = "10.2.6"
+val AkkaVersion = "2.6.19"
+val AkkaHttpVersion = "10.2.9"
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
   "com.typesafe.akka" %% "akka-stream" % AkkaVersion,
@@ -20,18 +22,18 @@ lazy val remoteAppName = "sbt-heroku-" + sys.props("heroku.uuid")
 Compile / herokuAppName := remoteAppName
 
 TaskKey[Unit]("createApp") := {
-  (packageBin in Compile).value
+  (Compile / packageBin).value
   Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.value.log
   Process("heroku", Seq("create", "-n", remoteAppName)) ! streams.value.log
 }
 
 TaskKey[Unit]("cleanup") := {
-  (packageBin in Compile).value
+  (Compile / packageBin).value
   Process("heroku", Seq("apps:destroy", "-a", remoteAppName, "--confirm", remoteAppName)) ! streams.value.log
 }
 
 TaskKey[Unit]("check") := {
-  (packageBin in Compile).value
+  (Compile / packageBin).value
   var retries = 0
   while (retries < 10) {
     try {
