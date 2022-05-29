@@ -70,10 +70,11 @@ object HerokuPlugin extends AutoPlugin {
 
   override def trigger = allRequirements
 
-  override val projectSettings: Seq[Setting[_]] =
+  override val projectSettings: Seq[Setting[_]] = {
+    val scalaCompiler = if (scalaVersion.value.startsWith("3.")) "scala3-compiler" else "scala-compiler"
     inConfig(Compile)(baseHerokuSettings) ++
     Seq(
-      libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value % "runtime",
+      libraryDependencies += "org.scala-lang" % scalaCompiler % scalaVersion.value % "runtime",
       extraLoggers := {
         val currentFunction = extraLoggers.value
         val targetValue = target.value
@@ -87,4 +88,5 @@ object HerokuPlugin extends AutoPlugin {
         }
       }
     )
+  }
 }
