@@ -1,7 +1,7 @@
 Heroku sbt Plugin
 =================
 [![](https://badgen.net/github/license/heroku/sbt-heroku)](LICENSE)
-[![](https://badgen.net/circleci/github/heroku/sbt-heroku/main)](https://circleci.com/gh/heroku/sbt-heroku/tree/main)
+[![CI](https://github.com/heroku/sbt-heroku/actions/workflows/ci.yml/badge.svg)](https://github.com/heroku/sbt-heroku/actions/workflows/ci.yml)
 
 This plugin is used to deploy Scala and Play applications directly to Heroku without pushing to a Git repository.
 This is can be useful when deploying from a CI server.
