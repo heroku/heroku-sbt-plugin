@@ -15,9 +15,10 @@ libraryDependencies ++= Seq(
 
 tlFatalWarnings := false
 
-Test / test := {
-  scripted.toTask("").value
-}
+// uncomment to enable tests
+// Test / test := {
+//   scripted.toTask("").value
+// }
 
 // Scripted
 scriptedLaunchOpts ++= Seq("-Dproject.version=" + version.value,
