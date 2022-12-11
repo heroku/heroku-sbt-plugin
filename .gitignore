@@ -1,3 +1,7 @@
 .idea
 target
 **/*/scripted.sbt
+.metals
+.vscode
+.bsp
+metals.sbt
