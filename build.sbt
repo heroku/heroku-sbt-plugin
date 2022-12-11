@@ -1,66 +1,25 @@
+ThisBuild / tlBaseVersion := "2.1"
+
 lazy val `sbt-heroku` = project in file(".")
 
 name := "sbt-heroku"
 
-organization := "com.heroku"
+enablePlugins(SbtPlugin)
 
-sbtPlugin := true
+licenses := Seq("MIT" -> url("http://opensource.org/licenses/MIT"))
 
-crossSbtVersions := Vector("0.13.18", "1.0.0")
-
-licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
-
-scalacOptions += "-deprecation"
-
-resolvers += Resolver.bintrayRepo("heroku", "maven")
-
+scalaVersion := "2.12.17"
 libraryDependencies ++= Seq(
   "com.heroku.sdk" % "heroku-deploy" % "2.0.16"
 )
 
-publishMavenStyle := false
+tlFatalWarnings := false
+
+Test / test := {
+  scripted.toTask("").value
+}
 
 // Scripted
-scriptedSettings
-scriptedLaunchOpts += { "-Dproject.version=" + version.value }
-scriptedLaunchOpts := { scriptedLaunchOpts.value ++
-  Seq("-Xmx1024M", "-XX:MaxPermSize=256M",
-    "-Dheroku.uuid=" + java.util.UUID.randomUUID.toString.substring(0,15))
-}
-
-// Bintray
-bintrayOrganization := Some("heroku")
-bintrayRepository := "sbt-plugins"
-bintrayPackage := "sbt-heroku"
-bintrayReleaseOnPublish := false
-
-// Git
-val tagName = Def.setting{
-  s"v${if (releaseUseGlobalVersion.value) (version in ThisBuild).value else version.value}"
-}
-val tagOrHash = Def.setting{
-  if(isSnapshot.value)
-    sys.process.Process("git rev-parse HEAD").lines_!.head
-  else
-    tagName.value
-}
-
-releaseTagName := tagName.value
-
-// Release
-import ReleaseTransformations._
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-  inquireVersions,
-  runClean,
-  // releaseStepCommandAndRemaining("^ test"),
-  // releaseStepCommandAndRemaining("^ scripted"),
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
-  releaseStepCommandAndRemaining("^ publishSigned"),
-  releaseStepTask(bintrayRelease in `sbt-heroku`),
-  setNextVersion,
-  commitNextVersion,
-  pushChanges
+scriptedLaunchOpts ++= Seq("-Dproject.version=" + version.value,
+                           "-Dheroku.uuid=" + java.util.UUID.randomUUID.toString.substring(0, 15)
 )

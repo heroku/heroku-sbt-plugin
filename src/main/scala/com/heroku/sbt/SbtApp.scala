@@ -1,3 +1,6 @@
+// Copyright (c) 2016-2022 Association of Universities for Research in Astronomy, Inc. (AURA)
+// For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
+
 package com.heroku.sbt
 
 import java.io.File
@@ -76,7 +79,7 @@ class SbtApp(buildPackDesc:String,
           val startScript = (dir / "bin" ** "*").
             filter(!_.getName.endsWith(".bat")).
             filter(!_.getName.equals("bin")).
-            get(0).getName
+            get.apply(0).getName
           if (scala.io.Source.fromFile(targetDir / "/universal/stage/bin" / startScript).mkString.contains("-main")) {
             Map[String, String](
               "web" -> ("target/universal/stage/bin/" + startScript + " -Dhttp.port=$PORT"),
