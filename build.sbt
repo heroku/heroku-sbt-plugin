@@ -1,4 +1,5 @@
-ThisBuild / tlBaseVersion := "2.1"
+ThisBuild / tlBaseVersion       := "2.1"
+ThisBuild / tlCiReleaseBranches := Seq("main")
 
 lazy val `sbt-heroku` = project in file(".")
 
