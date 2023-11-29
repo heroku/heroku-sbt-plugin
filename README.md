@@ -3,6 +3,15 @@ Heroku sbt Plugin
 [![](https://badgen.net/github/license/heroku/sbt-heroku)](LICENSE)
 [![CI](https://github.com/heroku/sbt-heroku/actions/workflows/ci.yml/badge.svg)](https://github.com/heroku/sbt-heroku/actions/workflows/ci.yml)
 
+> [!IMPORTANT]
+> This plugin is no longer maintained.
+>
+> Heroku offers a build tool independent CLI for the purpose of deploying JAR and WAR files directly to Heroku without
+> using the standard Git workflow. Users that require the functionality of the Heroku sbt Plugin are encouraged to
+> migrate to it.
+>
+> Find out more: [Heroku JVM Application Deployer](https://github.com/heroku/heroku-jvm-application-deployer)
+
 This plugin is used to deploy Scala and Play applications directly to Heroku without pushing to a Git repository.
 This is can be useful when deploying from a CI server.
 
